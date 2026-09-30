@@ -7,6 +7,8 @@
   // ---------- Petits outils ----------
   let minuteurToast;
   function toast(texte, erreur = false) {
+    // Intégrée dans la régie : le message s'affiche dans la régie, toujours visible.
+    if (document.body.classList.contains('integre') && window.parent.afficherToast) return window.parent.afficherToast(texte, erreur);
     const t = $('toast');
     t.textContent = texte;
     t.classList.toggle('erreur', erreur);

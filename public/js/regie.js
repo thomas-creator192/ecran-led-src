@@ -8,6 +8,8 @@
   let quitte = false;
 
   let minuteurToast;
+  // Aussi utilisé par les commandes du match intégrées (leurs messages s'affichent ici).
+  window.afficherToast = toast;
   function toast(texte, erreur = false) {
     const t = $('toast');
     t.textContent = texte;
@@ -124,6 +126,18 @@
     $('voile-quitte').classList.add('visible');
   };
   $('ouvrir-ecran').onclick = () => window.open('/ecran', 'ecranled', 'popup,width=900,height=300');
+
+  // ---------- Commandes du match ----------
+  // Le cadre prend la hauteur de la télécommande : pas de seconde barre de défilement.
+  const cadre = $('commandes');
+  function ajusterCommandes() {
+    const corps = cadre.contentDocument && cadre.contentDocument.body;
+    if (corps) cadre.style.height = corps.offsetHeight + 'px';
+  }
+  cadre.addEventListener('load', () => {
+    ajusterCommandes();
+    new ResizeObserver(ajusterCommandes).observe(cadre.contentDocument.body);
+  });
 
   // ---------- Réglages ----------
   function remplirReglages(r) {

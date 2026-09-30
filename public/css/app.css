@@ -179,12 +179,11 @@ details[open] summary { margin-bottom: 12px; }
 .regie header img { height: 56px; }
 .regie header h1 { font-size: 22px; margin: 0; }
 .regie header p { margin: 0; color: var(--doux); }
-.colonnes { display: grid; grid-template-columns: 400px minmax(0, 1fr) 340px; gap: 18px; align-items: start; }
-/* Commandes du match : la télécommande intégrée reste visible pendant qu'on fait défiler la régie. */
-.commandes { position: sticky; top: 20px; }
+.colonnes { display: grid; grid-template-columns: 340px 1fr; gap: 18px; align-items: start; }
+/* Commandes du match : la télécommande, affichée en entier (hauteur ajustée par regie.js). */
 .bloc-commandes { padding: 14px 0 0; overflow: hidden; }
 .bloc-commandes h2 { padding: 0 14px; }
-.telecommande-integree { display: block; width: 100%; height: calc(100vh - 180px); min-height: 560px; border: 0; }
+.telecommande-integree { display: block; width: 100%; height: 900px; border: 0; }
 .colonne { display: grid; gap: 18px; }
 .qr { background: #fff; border-radius: 12px; padding: 8px; }
 .qr img { display: block; width: 100%; aspect-ratio: 1; }
@@ -195,19 +194,18 @@ details[open] summary { margin-bottom: 12px; }
 .boutons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
 .primaire { background: var(--bleu-vif); font-weight: 600; }
 .regie .journal ol { max-height: 360px; overflow: auto; }
-@media (max-width: 1250px) {
-  .colonnes { grid-template-columns: 400px minmax(0, 1fr); }
-  .colonnes > .colonne:last-child { grid-column: 2; }
-}
 @media (max-width: 800px) {
   .regie { padding: 16px; }
   .colonnes { grid-template-columns: 1fr; }
-  .colonnes > .colonne:last-child { grid-column: auto; }
-  .commandes { position: static; }
 }
 /* Télécommande affichée dans la régie */
 body.integre .bandeau { padding-top: 10px; }
-body.integre main { padding-top: 12px; }
+body.integre main { padding-top: 12px; padding-bottom: 90px; }
+/* Dans la régie, le bandeau et le bouton Annuler suivent la page au lieu de rester fixés. */
+body.integre { position: relative; }
+body.integre .journal { display: none; } /* le journal du match est juste au-dessus dans la régie */
+body.integre .bandeau { position: static; }
+body.integre .barre-annuler { position: absolute; }
 
 /* ---------- Régie : app installée ---------- */
 .regie header .titre { flex: 1; min-width: 0; }
