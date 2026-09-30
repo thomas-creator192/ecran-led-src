@@ -61,10 +61,75 @@
     finAnimation = setTimeout(arreterBut, DUREE_BUT);
   }
 
-  function surEtat(nouvel) {
+  // ---------- Spots annonceurs : lecture en boucle de la playlist ----------
+  const vueSpots = $('vue-spots');
+  let lecteur = { cle: '', uid: null, playlist: [], minuteur: null };
+
+  function majSpots(spots) {
+    const actifs = !!(spots && spots.actif && spots.playlist.length);
+    vueSpots.classList.toggle('visible', actifs);
+    if (!actifs) return arreterSpots();
+    const cle = JSON.stringify(spots.playlist.map((p) => [p.uid, p.duree]));
+    if (cle === lecteur.cle) return;
+    lecteur.cle = cle;
+    lecteur.playlist = spots.playlist;
+    // Le spot en cours va jusqu'au bout ; s'il a été retiré, on passe au premier.
+    if (!lecteur.uid || !spots.playlist.some((p) => p.uid === lecteur.uid)) jouerSpot(0);
+  }
+  function arreterSpots() {
+    clearTimeout(lecteur.minuteur);
+    if (lecteur.uid) vueSpots.replaceChildren();
+    lecteur = { cle: '', uid: null, playlist: [], minuteur: null };
+  }
+  function spotSuivant() {
+    const i = lecteur.playlist.findIndex((p) => p.uid === lecteur.uid);
+    const j = (i + 1) % lecteur.playlist.length;
+    // Un seul spot : on le relance sur place, sans clignotement.
+    const media = vueSpots.firstElementChild;
+    if (j === i && media) {
+      clearTimeout(lecteur.minuteur);
+      const spot = lecteur.playlist[j];
+      if (spot.type === 'video') {
+        media.currentTime = 0;
+        media.play().catch(() => {});
+        lecteur.minuteur = setTimeout(spotSuivant, spot.duree * 1000 + 3000);
+      } else {
+        lecteur.minuteur = setTimeout(spotSuivant, spot.duree * 1000);
+      }
+      return;
+    }
+    jouerSpot(j);
+  }
+  function jouerSpot(i) {
+    clearTimeout(lecteur.minuteur);
+    const spot = lecteur.playlist[i];
+    if (!spot) return;
+    lecteur.uid = spot.uid;
+    let el;
+    if (spot.type === 'video') {
+      el = document.createElement('video');
+      el.muted = true;
+      el.playsInline = true;
+      el.src = spot.url;
+      el.onended = spotSuivant;
+      el.onerror = () => { lecteur.minuteur = setTimeout(spotSuivant, 1000); };
+      el.play().catch(() => {});
+      // Filet de sécurité si la vidéo ne signale pas sa fin.
+      lecteur.minuteur = setTimeout(spotSuivant, spot.duree * 1000 + 3000);
+    } else {
+      el = new Image();
+      el.src = spot.url;
+      lecteur.minuteur = setTimeout(spotSuivant, spot.duree * 1000);
+    }
+    el.className = 'media';
+    vueSpots.replaceChildren(el);
+  }
+
+  function surEtat(nouvel, message) {
     const ancien = etat;
     etat = nouvel;
     placer();
+    majSpots(message.spots);
 
     const but = etat.but;
     // Un but annulé pendant son animation : on coupe l'animation.

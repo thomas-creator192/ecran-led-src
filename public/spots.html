@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Écran LED SRC — Spots annonceurs</title>
+<link rel="icon" href="/img/icone.ico">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="regie page-spots">
+
+<header>
+  <img src="/img/logo-src.png" alt="">
+  <div class="titre">
+    <h1>Spots annonceurs</h1>
+    <p>Vidéos, images et PDF diffusés en boucle sur l'écran LED, avant et après les matchs.</p>
+  </div>
+  <a class="bouton-lien" href="/regie">← Régie du match</a>
+</header>
+
+<section class="bloc etat-spots" id="etat-spots">
+  <div>
+    <h2>À l'écran maintenant</h2>
+    <p class="etat-texte" id="etat-texte">Le match (score et chrono)</p>
+  </div>
+  <button class="gros go" id="lancer">▶ Diffuser les spots</button>
+  <button class="gros stop" id="arreter" hidden>⏹ Arrêter les spots (retour au score)</button>
+</section>
+
+<div class="colonnes spots-colonnes">
+  <div class="colonne">
+    <section class="bloc">
+      <h2>Mes spots</h2>
+      <label class="depot" id="depot">
+        <input type="file" id="fichiers" multiple accept=".mp4,.webm,.jpg,.jpeg,.png,.webp,.pdf,video/mp4,video/webm,image/jpeg,image/png,image/webp,application/pdf">
+        <strong>Ajouter des fichiers</strong>
+        <span>Glisse-les ici ou clique. Vidéo MP4 ou WebM, image JPG, PNG ou WebP, PDF (une image par page).</span>
+        <span>Idéal : format 3:1, par exemple 288 × 96 ou 864 × 288.</span>
+      </label>
+      <ul class="envois" id="envois"></ul>
+      <ul class="bibliotheque" id="bibliotheque"></ul>
+    </section>
+  </div>
+
+  <div class="colonne">
+    <section class="bloc">
+      <h2>Ce qu'affiche l'écran LED</h2>
+      <iframe class="apercu" src="/ecran?apercu=1" title="Aperçu de l'écran LED"></iframe>
+    </section>
+
+    <section class="bloc">
+      <div class="entete-bloc">
+        <h2>En diffusion</h2>
+        <span class="aide" id="boucle"></span>
+      </div>
+      <ol class="playlist" id="playlist"></ol>
+      <p class="aide">« Retirer » enlève le spot de la diffusion sans le supprimer de « Mes spots ».
+        Au coup d'envoi, à un but ou sur « Score », les spots s'arrêtent tout seuls pour laisser la place au match.</p>
+    </section>
+  </div>
+</div>
+
+<div class="voile modale" id="modale">
+  <div class="fenetre">
+    <div class="entete-bloc">
+      <h2 id="modale-titre">Aperçu</h2>
+      <button class="court" id="modale-fermer">Fermer ✕</button>
+    </div>
+    <div class="ecran-simule" id="modale-ecran"></div>
+    <p class="aide" id="modale-infos"></p>
+    <div class="boutons">
+      <button class="primaire" id="modale-diffuser">Mettre en diffusion</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="/js/commun.js"></script>
+<script type="module" src="/js/spots.js"></script>
+</body>
+</html>

@@ -9,6 +9,7 @@ const os = require('os');
 const crypto = require('crypto');
 const QRCode = require('qrcode');
 const systeme = require('./systeme');
+const Spots = require('./spots');
 
 const VERSION = require('./package.json').version;
 
@@ -220,7 +221,9 @@ function executer(d, qui) {
     throw "Quelqu'un vient déjà de le faire : l'écran est à jour.";
   }
   const avant = photo();
-  const libelle = action(d);
+  let libelle = action(d);
+  // Le match reprend l'écran : coup d'envoi, but ou retour au score arrêtent les spots annonceurs.
+  if (['coup_envoi', 'but', 'ecran'].includes(d.type) && spots.arreterPourLeMatch()) libelle += ' (spots arrêtés)';
   historique.push({ match: avant, libelle });
   if (historique.length > 50) historique.shift();
   noter(qui, libelle);
@@ -260,6 +263,7 @@ function message(complet) {
     etat: complet ? etat : { ...etat, journal: [] },
     maintenant: Date.now(),
     annulable: complet && dernier ? dernier.libelle : null,
+    spots: spots.publique(),
   });
 }
 function diffuser() {
@@ -344,8 +348,8 @@ const ENTETES_SECURITE = {
   'X-Frame-Options': 'SAMEORIGIN',
   'Referrer-Policy': 'no-referrer',
   'Content-Security-Policy':
-    "default-src 'self'; img-src 'self' data:; media-src 'self'; style-src 'self' 'unsafe-inline'; " +
-    "script-src 'self'; connect-src 'self'; frame-ancestors 'self'; form-action 'self'",
+    "default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; " +
+    "script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; frame-ancestors 'self'; form-action 'self'",
 };
 
 function json(res, statut, corps) {
@@ -365,6 +369,7 @@ const TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.svg': 'image/svg+xml',
@@ -459,10 +464,13 @@ async function router(req, res) {
       const s = sessionDe(req);
       return json(res, 200, { autorise: local || !!s, local, prenom: s ? s.prenom : '' });
     }
-    if (/^\/(img|js|css|videos)\//.test(p)) return fichier(res, decodeURIComponent(p.slice(1)));
+    if (/^\/(img|js|css|vendor)\//.test(p)) return fichier(res, decodeURIComponent(p.slice(1)));
 
     // --- Réservé au PC de régie ---
     if (!local) return texte(res, 403, 'Refusé');
+    if (p === '/spots') return fichier(res, 'spots.html');
+    if (p === '/api/spots') return json(res, 200, spots.complete());
+    if (p.startsWith('/medias/')) return spots.servir(req, res, p.slice('/medias/'.length));
     if (p === '/api/regie') {
       return json(res, 200, {
         version: VERSION,
@@ -488,6 +496,11 @@ async function router(req, res) {
   }
 
   if (req.method === 'POST') {
+    // Envoi d'un fichier de spot (corps binaire) : PC de régie uniquement, depuis nos propres pages.
+    if (p === '/api/spots/televerser') {
+      if (!local || !origineValide(req) || req.headers['x-spot'] !== '1') return json(res, 403, { ok: false, message: 'Refusé' });
+      return spots.televerser(req, res, url);
+    }
     // Seul du JSON envoyé par nos propres pages est accepté (bloque les formulaires d'autres sites).
     if (!origineValide(req) || !String(req.headers['content-type'] || '').startsWith('application/json')) {
       return json(res, 403, { ok: false, message: 'Requête refusée.' });
@@ -518,6 +531,15 @@ async function router(req, res) {
 
     // --- Réservé au PC de régie ---
     if (!local) return json(res, 403, { ok: false });
+    if (p === '/api/spots') {
+      try {
+        spots.action(d);
+      } catch (m) {
+        if (typeof m !== 'string') throw m;
+        return json(res, 409, { ok: false, message: m });
+      }
+      return json(res, 200, { ok: true });
+    }
     if (p === '/api/reglages') {
       appliquerReglages(d);
       return json(res, 200, { ok: true });
@@ -570,6 +592,7 @@ async function router(req, res) {
 // ---------- Démarrage ----------
 
 charger();
+const spots = Spots.creer({ dossierData: DOSSIER_DATA, surChangement: () => diffuser() });
 const serveur = http.createServer((req, res) => {
   router(req, res).catch((err) => {
     console.error(err);

@@ -163,8 +163,11 @@
     toast('Réglages enregistrés');
   };
 
+  $('stop-spots').onclick = () => Commun.poster('/api/spots', { action: 'arreter' });
+
   Commun.connecter(
-    (e) => {
+    (e, m) => {
+      $('bandeau-spots').hidden = !(m.spots && m.spots.actif);
       const premier = !etat;
       etat = e;
       if (!reglagesCharges) {

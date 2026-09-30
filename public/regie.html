@@ -15,10 +15,15 @@
     <h1>Régie de l'écran LED</h1>
     <p>SRC La Clayette · <span id="statut">connexion…</span> · <span id="version"></span></p>
   </div>
+  <a class="bouton-lien spots-lien" href="/spots">📺 Spots annonceurs</a>
   <button id="quitter" class="discret court">Quitter l'app</button>
 </header>
 
 <div class="alerte" id="alerte-reseau" hidden></div>
+<div class="bandeau-spots" id="bandeau-spots" hidden>
+  <span>📺 Les spots annonceurs passent sur l'écran LED.</span>
+  <button class="court primaire" id="stop-spots">Revenir au score</button>
+</div>
 
 <div class="colonnes">
   <div class="colonne">

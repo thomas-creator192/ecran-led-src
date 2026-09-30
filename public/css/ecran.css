@@ -121,6 +121,12 @@ body.apercu { cursor: default; }
 .club-nom { font-size: 150px; line-height: .9; }
 .club-ville { font-size: 76px; color: var(--bleu-clair); letter-spacing: 8px; }
 
+/* ---------- Spots annonceurs ---------- */
+.spots { position: absolute; inset: 0; display: none; background: #000; }
+.spots.visible { display: block; }
+.spots .media { display: block; width: 100%; height: 100%; object-fit: contain; animation: apparition .4s ease-out; }
+@keyframes apparition { from { opacity: 0; } }
+
 /* ---------- Animation de but ---------- */
 .but {
   position: absolute;

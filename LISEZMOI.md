@@ -22,6 +22,18 @@ Rien d'autre à installer : le moteur de l'app est inclus.
 4. Sur le téléphone : **Coup d'envoi**, **BUT**, **temps additionnel**, **fin de mi-temps**… Le bouton orange **Annuler** rattrape n'importe quelle erreur.
 5. Après le match : **« Quitter l'app »** en haut de la régie.
 
+## Spots annonceurs (avant et après les matchs)
+
+Dans la régie, bouton **« 📺 Spots annonceurs »** :
+1. **Ajouter des fichiers** : glisser ou choisir des vidéos (MP4, WebM), des images (JPG, PNG, WebP) ou des PDF. Chaque page d'un PDF devient une image.
+   Format idéal : **3:1**, par exemple 288 × 96 ou 864 × 288. Sinon, le spot est affiché en entier avec des bandes noires, et l'outil le signale.
+2. **👁 ou clic sur un spot** : aperçu au format de l'écran LED.
+3. **« ＋ Diffuser »** : le spot passe dans la colonne « En diffusion ». On peut y changer l'ordre, la durée des images, et **« Retirer »** un spot de la diffusion sans le supprimer de l'outil. La corbeille 🗑 le supprime de l'outil.
+4. **« ▶ Diffuser les spots »** : les spots passent en boucle sur l'écran LED.
+
+Les spots s'arrêtent tout seuls au **coup d'envoi**, à un **but**, ou quand un bénévole appuie sur **« Score »** : le match reprend toujours l'écran.
+Les fichiers sont rangés avec les données de l'app et ne sont jamais touchés par les mises à jour.
+
 ## Bon à savoir
 
 - **Deux bénévoles appuient sur BUT en même temps** : le but ne compte qu'une fois.
@@ -36,6 +48,7 @@ Rien d'autre à installer : le moteur de l'app est inclus.
 - Un téléphone n'a accès à la télécommande **qu'après avoir scanné le QR code**. Chaque téléphone a son propre accès, visible dans la régie (« Téléphones connectés ») et **retirable** d'un clic. Un accès expire tout seul après 24 h sans utilisation.
 - **« Nouveau code »** change le QR code et déconnecte tous les téléphones.
 - Le prénom inscrit dans le journal est celui enregistré pour le téléphone : impossible d'agir sous le nom de quelqu'un d'autre.
+- Les spots (envoi, fichiers, diffusion) ne sont gérables que depuis le PC du stade. Chaque fichier envoyé est vérifié (vrai format, 500 Mo maximum).
 - Les autres pages web ouvertes sur le PC ou les téléphones ne peuvent pas piloter l'app. Le pare-feu n'ouvre l'app qu'aux réseaux privés.
 
 ## Mises à jour

@@ -107,7 +107,9 @@
     const enJeu = etat.phase === 'jeu';
     $('bloc-add').style.display = enJeu ? '' : 'none';
     puces.querySelectorAll('button').forEach((b) => b.classList.toggle('actif', Number(b.dataset.minutes) === (etat.tempsAdd || 0)));
-    document.querySelectorAll('[data-ecran]').forEach((b) => b.classList.toggle('actif', b.dataset.ecran === etat.ecran));
+    const spotsActifs = !!(message.spots && message.spots.actif);
+    $('note-spots').hidden = !spotsActifs;
+    document.querySelectorAll('[data-ecran]').forEach((b) => b.classList.toggle('actif', !spotsActifs && b.dataset.ecran === etat.ecran));
 
     const pause = $('pause-chrono');
     pause.disabled = !enJeu;
