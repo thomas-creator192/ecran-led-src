@@ -1,6 +1,6 @@
 {
   "name": "ecran-led-foot",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "Pilotage de l'écran LED du SRC La Clayette : chrono, score, animations de but, télécommande sur téléphone.",
   "main": "server.js",

@@ -2,6 +2,7 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   let etat = null;
+  if (new URLSearchParams(location.search).has('integre')) document.body.classList.add('integre');
 
   // ---------- Petits outils ----------
   let minuteurToast;

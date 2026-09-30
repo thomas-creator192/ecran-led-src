@@ -21,7 +21,21 @@
 <div class="alerte" id="alerte-reseau" hidden></div>
 
 <div class="colonnes">
+  <div class="colonne commandes">
+    <section class="bloc bloc-commandes">
+      <h2>Commandes du match</h2>
+      <iframe class="telecommande-integree" src="/telecommande?integre=1" title="Commandes du match"></iframe>
+    </section>
+  </div>
+
   <div class="colonne">
+    <section class="bloc">
+      <h2>Ce qu'affiche l'écran LED</h2>
+      <iframe class="apercu" src="/ecran?apercu=1" title="Aperçu de l'écran LED"></iframe>
+      <p class="aide">Si la diffusion automatique ne tombe pas sur le bon écran :
+        <button class="lien" id="ouvrir-ecran">ouvrir l'affichage dans une fenêtre</button>, la glisser sur l'écran LED puis double-cliquer dedans.</p>
+    </section>
+
     <section class="bloc">
       <h2>Diffusion sur l'écran LED</h2>
       <label class="aide">Écran de diffusion
@@ -34,6 +48,13 @@
       <p class="aide" id="etat-diffusion">L'affichage s'ouvre en plein écran sur l'écran choisi.</p>
     </section>
 
+    <section class="bloc journal">
+      <h2>Journal du match</h2>
+      <ol id="journal"></ol>
+    </section>
+  </div>
+
+  <div class="colonne">
     <section class="bloc">
       <h2>Télécommande des bénévoles</h2>
       <div class="qr"><img id="qr" alt="QR code de la télécommande"></div>
@@ -43,7 +64,6 @@
         <select id="reseau"></select>
       </label>
       <div class="boutons">
-        <button class="primaire" id="ouvrir-tel">Télécommande sur ce PC</button>
         <button id="nouveau-code">Nouveau code</button>
       </div>
       <p class="aide">« Nouveau code » déconnecte tous les téléphones et change le QR code.</p>
@@ -52,20 +72,6 @@
     <section class="bloc">
       <h2>Téléphones connectés</h2>
       <ul class="appareils" id="appareils"></ul>
-    </section>
-  </div>
-
-  <div class="colonne">
-    <section class="bloc">
-      <h2>Ce qu'affiche l'écran LED</h2>
-      <iframe class="apercu" src="/ecran?apercu=1" title="Aperçu de l'écran LED"></iframe>
-      <p class="aide">Si la diffusion automatique ne tombe pas sur le bon écran :
-        <button class="lien" id="ouvrir-ecran">ouvrir l'affichage dans une fenêtre</button>, la glisser sur l'écran LED puis double-cliquer dedans.</p>
-    </section>
-
-    <section class="bloc journal">
-      <h2>Journal du match</h2>
-      <ol id="journal"></ol>
     </section>
 
     <form class="bloc" id="reglages">

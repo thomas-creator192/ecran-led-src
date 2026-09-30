@@ -123,7 +123,6 @@
     await Commun.poster('/api/quitter');
     $('voile-quitte').classList.add('visible');
   };
-  $('ouvrir-tel').onclick = () => window.open('/telecommande', 'telecommande', 'popup,width=460,height=860');
   $('ouvrir-ecran').onclick = () => window.open('/ecran', 'ecranled', 'popup,width=900,height=300');
 
   // ---------- Réglages ----------
