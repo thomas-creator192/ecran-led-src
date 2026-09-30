@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Écran LED — SRC La Clayette</title>
+<link rel="stylesheet" href="/css/ecran.css">
+</head>
+<body>
+<div id="zone">
+  <div id="scene">
+
+    <div id="vue-score" class="vue">
+      <div class="equipe dom">
+        <img class="blason" src="/img/logo-src.png" alt="">
+        <div class="nom" id="nom-dom">SRC</div>
+      </div>
+      <div class="centre">
+        <div class="chrono" id="ligne-chrono">
+          <span id="chrono">00:00</span><span class="add" id="add"></span>
+        </div>
+        <div class="score">
+          <span class="chiffre" id="s-dom">0</span><span class="tiret">-</span><span class="chiffre" id="s-ext">0</span>
+        </div>
+      </div>
+      <div class="equipe ext">
+        <svg class="blason blason-ext" viewBox="0 0 100 116" aria-hidden="true">
+          <path d="M50 5 L93 19 V58 C93 86 74 103 50 111 C26 103 7 86 7 58 V19 Z"/>
+          <text x="50" y="72" text-anchor="middle">EXT</text>
+        </svg>
+        <div class="nom" id="nom-ext">VISITEUR</div>
+      </div>
+    </div>
+
+    <div id="vue-logo" class="vue">
+      <img class="grand-logo" src="/img/logo-src.png" alt="">
+      <div class="club">
+        <div class="club-nom">SRC FOOT</div>
+        <div class="club-ville">LA CLAYETTE</div>
+      </div>
+    </div>
+
+    <div id="but" class="but">
+      <div class="but-fond"></div>
+      <img class="but-logo" src="/img/logo-src.png" alt="">
+      <div class="but-textes">
+        <div class="but-texte">BUT !</div>
+        <div class="but-equipe" id="but-equipe">VISITEUR</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script src="/js/commun.js"></script>
+<script src="/js/ecran.js"></script>
+</body>
+</html>

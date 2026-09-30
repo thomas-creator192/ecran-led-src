@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07182a">
+<title>Télécommande — SRC La Clayette</title>
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="tel">
+
+<header class="bandeau">
+  <img class="mini-logo" src="/img/logo-src.png" alt="">
+  <div class="tableau">
+    <div class="ligne-score">
+      <span class="n-dom">SRC</span><b id="s-dom">0</b><i>–</i><b id="s-ext">0</b><span class="n-ext">VISITEUR</span>
+    </div>
+    <div class="ligne-chrono">
+      <span class="chrono" id="chrono">00:00</span>
+      <span class="extra" id="extra"></span>
+      <span class="phase" id="phase">Avant-match</span>
+    </div>
+  </div>
+  <span class="point" id="connexion" title="Connexion au PC de régie"></span>
+</header>
+
+<main>
+  <section class="bloc pile" id="principal"></section>
+
+  <section class="bloc pile">
+    <button class="gros but-dom" data-but="dom">⚽ BUT <span class="n-dom">SRC</span></button>
+    <button class="gros but-ext" data-but="ext">⚽ BUT <span class="n-ext">VISITEUR</span></button>
+    <p class="aide">Le bouton BUT ajoute le point et lance l'animation sur l'écran.</p>
+  </section>
+
+  <section class="bloc pile" id="bloc-add">
+    <h2>Temps additionnel annoncé</h2>
+    <div class="puces" id="puces-add"></div>
+  </section>
+
+  <section class="bloc">
+    <h2>Écran</h2>
+    <div class="bascule">
+      <button data-ecran="score">Score</button>
+      <button data-ecran="logo">Logo du club</button>
+    </div>
+  </section>
+
+  <details class="bloc">
+    <summary>Corriger le score</summary>
+    <div class="pile">
+      <div class="corrige"><span class="n-dom">SRC</span><button data-score="dom" data-delta="-1">−1</button><button data-score="dom" data-delta="1">+1</button></div>
+      <div class="corrige"><span class="n-ext">VISITEUR</span><button data-score="ext" data-delta="-1">−1</button><button data-score="ext" data-delta="1">+1</button></div>
+      <p class="aide">Sans animation. Pour une erreur de but, le bouton « Annuler » en bas suffit.</p>
+    </div>
+  </details>
+
+  <details class="bloc">
+    <summary>Corriger le chrono</summary>
+    <div class="pile">
+      <div class="grille4">
+        <button data-ajuster="-60000">−1 min</button>
+        <button data-ajuster="-10000">−10 s</button>
+        <button data-ajuster="10000">+10 s</button>
+        <button data-ajuster="60000">+1 min</button>
+      </div>
+      <button id="pause-chrono">Mettre le chrono en pause</button>
+    </div>
+  </details>
+
+  <section class="bloc journal">
+    <h2>Dernières actions</h2>
+    <ol id="journal"></ol>
+  </section>
+
+  <section class="bloc pile">
+    <button class="discret" id="nouveau">Nouveau match (remet à 0-0)</button>
+    <button class="lien" id="changer-prenom">Changer de prénom</button>
+  </section>
+</main>
+
+<div class="barre-annuler"><button id="annuler" disabled>↶ Annuler</button></div>
+<div id="toast"></div>
+
+<div class="voile" id="voile-prenom">
+  <form id="form-prenom">
+    <div>
+      <img src="/img/logo-src.png" alt="">
+      <h1>Télécommande de l'écran</h1>
+      <p>Ton prénom apparaîtra dans le journal des actions.</p>
+      <input id="prenom" maxlength="20" autocomplete="given-name" placeholder="Ton prénom" required>
+      <button class="gros go" type="submit">C'est parti</button>
+    </div>
+  </form>
+</div>
+
+<div class="voile" id="voile-refuse">
+  <div>
+    <img src="/img/logo-src.png" alt="">
+    <h1>Scanne le QR code</h1>
+    <p>Pour piloter l'écran, scanne le QR code affiché sur le PC de régie, avec ton téléphone connecté au Wi-Fi du stade.</p>
+  </div>
+</div>
+
+<script src="/js/commun.js"></script>
+<script src="/js/telecommande.js"></script>
+</body>
+</html>

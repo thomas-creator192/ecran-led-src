@@ -1,0 +1,180 @@
+/* Affichage de l'écran LED. La scène est dessinée en 1200 × 400 (format 3:1 de l'écran)
+   puis mise à l'échelle pour remplir la fenêtre ou la zone réglée dans la régie. */
+:root {
+  --bleu: #255a84;
+  --bleu-clair: #88c8e8;
+  --bleu-nuit: #07182a;
+  --gris: #3a3f48;
+}
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  cursor: none;
+}
+body.apercu { cursor: default; }
+#zone {
+  position: absolute;
+  overflow: hidden;
+  background: #000;
+}
+#scene {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1200px;
+  height: 400px;
+  transform-origin: 0 0;
+  overflow: hidden;
+  background: var(--bleu-nuit);
+  color: #fff;
+  font-family: Bahnschrift, "Arial Narrow", Arial, sans-serif;
+  font-variation-settings: "wght" 700, "wdth" 75;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.vue { position: absolute; inset: 0; display: none; }
+.vue.visible { display: grid; }
+
+/* ---------- Score ---------- */
+#vue-score { grid-template-columns: 290px minmax(0, 1fr) 290px; }
+.equipe {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+}
+.equipe.dom { background: linear-gradient(160deg, #2f6d9e, #173d5e); }
+.equipe.ext { background: linear-gradient(160deg, #454b55, #22262c); }
+.blason { height: 220px; width: auto; }
+.blason-ext { width: 190px; height: 220px; }
+.blason-ext path { fill: #5a616c; stroke: #c9ced6; stroke-width: 4; }
+.blason-ext text { fill: #fff; font-size: 34px; font-family: inherit; font-variation-settings: inherit; }
+.nom {
+  font-size: 60px;
+  line-height: 1;
+  /* La boîte du texte s'arrête aux majuscules : le bloc logo + nom est centré à l'œil. */
+  text-box: trim-both cap alphabetic;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.centre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+.score {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 110px;
+  line-height: 1;
+}
+.tiret { color: var(--bleu-clair); font-size: 70px; }
+.chiffre { display: inline-block; }
+.chiffre.pulse { animation: pulse 1.2s ease-out; }
+@keyframes pulse {
+  0% { transform: scale(1.35); color: var(--bleu-clair); }
+  100% { transform: scale(1); color: #fff; }
+}
+/* Le chrono est réduit par ecran.js s'il dépasse la largeur de la colonne (ex. 105:00 +3). */
+.chrono {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 230px;
+  line-height: .86;
+  color: var(--bleu-clair);
+  white-space: nowrap;
+  transform-origin: center;
+}
+.chrono.depasse { color: #ff2b2b; }
+.chrono.libelle { color: #fff; letter-spacing: 6px; font-size: 150px; }
+.add {
+  display: none;
+  background: var(--bleu-clair);
+  color: var(--bleu-nuit);
+  border-radius: 16px;
+  padding: 4px 16px 0;
+  font-size: 110px;
+  line-height: 1;
+}
+.chrono.depasse .add { background: #ff2b2b; color: #fff; }
+.add.visible { display: block; }
+
+/* ---------- Logo du club ---------- */
+#vue-logo {
+  grid-template-columns: auto auto;
+  justify-content: center;
+  align-items: center;
+  gap: 48px;
+  background: radial-gradient(circle at 30% 50%, #2f6d9e 0%, var(--bleu-nuit) 70%);
+}
+.grand-logo { height: 340px; }
+.club-nom { font-size: 150px; line-height: .9; }
+.club-ville { font-size: 76px; color: var(--bleu-clair); letter-spacing: 8px; }
+
+/* ---------- Animation de but ---------- */
+.but {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+  overflow: hidden;
+}
+.but.actif { display: flex; }
+.but-fond {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(115deg, var(--bleu) 0 70px, #2c6896 70px 140px);
+  background-size: 300% 100%;
+  animation: fond 6s both, defile 6s linear both;
+}
+.but.ext .but-fond {
+  background: repeating-linear-gradient(115deg, var(--gris) 0 70px, #444a54 70px 140px);
+  background-size: 300% 100%;
+}
+.but-logo { position: relative; height: 330px; animation: logo 6s both; }
+.but.ext .but-logo { display: none; }
+.but-textes { position: relative; text-align: center; animation: slam 6s both; }
+.but-texte {
+  font-size: 270px;
+  line-height: .85;
+  animation: flash .5s steps(1) .8s 8;
+}
+.but-equipe { display: none; font-size: 80px; letter-spacing: 6px; color: #d5d9df; }
+.but.ext .but-texte { font-size: 220px; }
+.but.ext .but-equipe { display: block; }
+
+@keyframes fond {
+  0% { transform: translateX(-100%); }
+  6%, 92% { transform: none; opacity: 1; }
+  100% { transform: none; opacity: 0; }
+}
+@keyframes defile {
+  from { background-position: 0 0; }
+  to { background-position: -600px 0; }
+}
+@keyframes slam {
+  0%, 5% { transform: scale(3); opacity: 0; }
+  11% { transform: scale(.9); opacity: 1; }
+  15%, 92% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+@keyframes logo {
+  0%, 8% { transform: translateX(-120%) rotate(-20deg); opacity: 0; }
+  16%, 92% { transform: none; opacity: 1; }
+  100% { transform: none; opacity: 0; }
+}
+@keyframes flash {
+  50% { color: var(--bleu-clair); }
+}

@@ -1,0 +1,216 @@
+/* Télécommande (téléphone) et régie (PC). */
+:root {
+  --bleu: #255a84;
+  --bleu-vif: #2f6d9e;
+  --bleu-clair: #88c8e8;
+  --nuit: #07182a;
+  --carte: #0f2740;
+  --bord: #1f4263;
+  --gris: #454b55;
+  --texte: #eef4fa;
+  --doux: #9fb4c8;
+  --vert: #2e9d5b;
+  --rouge: #c8463d;
+  --orange: #d98a2b;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--nuit);
+  color: var(--texte);
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+}
+h1, h2 { margin: 0 0 10px; }
+h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--doux); font-weight: 600; }
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  border-radius: 14px;
+  background: var(--bord);
+  padding: 12px 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+}
+button:active { transform: scale(.97); filter: brightness(1.15); }
+button:disabled { opacity: .35; pointer-events: none; }
+input, select {
+  font: inherit;
+  color: var(--texte);
+  background: var(--nuit);
+  border: 1px solid var(--bord);
+  border-radius: 10px;
+  padding: 10px 12px;
+  width: 100%;
+}
+.num { font-family: Bahnschrift, "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; }
+
+/* ---------- Bandeau d'état ---------- */
+.bandeau {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  padding-top: max(10px, env(safe-area-inset-top));
+  background: linear-gradient(180deg, #123456, var(--nuit));
+  border-bottom: 1px solid var(--bord);
+}
+.mini-logo { height: 52px; }
+.tableau { flex: 1; min-width: 0; }
+.ligne-score {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 15px;
+  white-space: nowrap;
+}
+.ligne-score b { font-size: 30px; font-variant-numeric: tabular-nums; }
+.ligne-score i { color: var(--bleu-clair); font-style: normal; font-size: 22px; }
+.ligne-score span { color: var(--doux); overflow: hidden; text-overflow: ellipsis; }
+.ligne-chrono { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.ligne-chrono .chrono { font-family: Bahnschrift, sans-serif; font-size: 24px; color: var(--bleu-clair); font-variant-numeric: tabular-nums; }
+.ligne-chrono .chrono.depasse { color: #ff5a4f; }
+.ligne-chrono .extra { font-family: Bahnschrift, sans-serif; color: var(--orange); font-variant-numeric: tabular-nums; }
+.ligne-chrono .phase { color: var(--doux); font-size: 13px; }
+.point { width: 12px; height: 12px; border-radius: 50%; background: var(--rouge); flex: none; }
+.point.ok { background: var(--vert); }
+
+/* ---------- Télécommande ---------- */
+.tel main { padding: 14px 16px 110px; display: grid; gap: 14px; max-width: 560px; margin: 0 auto; }
+.bloc { background: var(--carte); border: 1px solid var(--bord); border-radius: 18px; padding: 14px; }
+.pile { display: grid; gap: 10px; }
+.gros { width: 100%; font-size: 20px; font-weight: 700; padding: 20px 14px; border-radius: 16px; }
+.go { background: var(--vert); }
+.stop { background: var(--rouge); }
+.discret { background: transparent; border: 1px solid var(--bord); color: var(--doux); width: 100%; }
+.but-dom { background: var(--bleu-vif); font-size: 24px; padding: 26px 14px; }
+.but-ext { background: var(--gris); font-size: 24px; padding: 26px 14px; }
+.corrige { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px; }
+.corrige span { color: var(--doux); }
+.corrige button { width: 64px; font-size: 20px; font-weight: 700; }
+.puces { display: flex; flex-wrap: wrap; gap: 8px; }
+.puces button { min-width: 54px; font-weight: 700; }
+.puces button.actif, .bascule button.actif { background: var(--bleu-clair); color: var(--nuit); }
+.bascule { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bascule button { padding: 16px; font-weight: 600; }
+.grille4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+details summary { cursor: pointer; color: var(--doux); font-weight: 600; list-style: none; }
+details summary::before { content: "▸ "; }
+details[open] summary::before { content: "▾ "; }
+details[open] summary { margin-bottom: 12px; }
+.aide { color: var(--doux); font-size: 13px; margin: 8px 0 0; }
+.journal ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 14px; }
+.journal li { color: var(--doux); }
+.journal li b { color: var(--texte); font-weight: 600; }
+.journal time { font-family: Bahnschrift, sans-serif; margin-right: 6px; }
+.lien { background: none; color: var(--doux); text-decoration: underline; padding: 8px 0 0; }
+
+.barre-annuler {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 10px 16px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  background: rgba(7, 24, 42, .96);
+  border-top: 1px solid var(--bord);
+}
+.barre-annuler button {
+  display: block;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--orange);
+  color: #1b1206;
+  font-weight: 700;
+  font-size: 17px;
+  padding: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  transform: translate(-50%, 20px);
+  max-width: calc(100% - 32px);
+  background: #fff;
+  color: var(--nuit);
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: .2s;
+  z-index: 20;
+}
+#toast.visible { opacity: 1; transform: translate(-50%, 0); }
+#toast.erreur { background: #ffd9d4; color: #6b1510; }
+
+.voile {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: none;
+  place-items: center;
+  padding: 24px;
+  background: rgba(7, 24, 42, .97);
+  text-align: center;
+}
+.voile.visible { display: grid; }
+.voile > div, .voile form > div { max-width: 360px; display: grid; gap: 14px; justify-items: center; }
+.voile img { height: 110px; }
+.voile p { color: var(--doux); margin: 0; }
+
+/* ---------- Régie ---------- */
+.regie { padding: 20px; }
+.regie header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.regie header img { height: 56px; }
+.regie header h1 { font-size: 22px; margin: 0; }
+.regie header p { margin: 0; color: var(--doux); }
+.colonnes { display: grid; grid-template-columns: 340px 1fr; gap: 18px; align-items: start; }
+.colonne { display: grid; gap: 18px; }
+.qr { background: #fff; border-radius: 12px; padding: 8px; }
+.qr img { display: block; width: 100%; aspect-ratio: 1; }
+.url { font-family: Consolas, monospace; font-size: 13px; color: var(--doux); word-break: break-all; margin: 10px 0; }
+.apercu { aspect-ratio: 3 / 1; width: 100%; border: 0; border-radius: 8px; background: #000; display: block; }
+.champs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.champs label { display: grid; gap: 6px; font-size: 13px; color: var(--doux); }
+.boutons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.primaire { background: var(--bleu-vif); font-weight: 600; }
+.regie .journal ol { max-height: 360px; overflow: auto; }
+@media (max-width: 800px) {
+  .regie { padding: 16px; }
+  .colonnes { grid-template-columns: 1fr; }
+}
+
+/* ---------- Régie : app installée ---------- */
+.regie header .titre { flex: 1; min-width: 0; }
+.court { padding: 8px 12px; font-size: 14px; width: auto; }
+.regie .boutons .gros { flex: 1; }
+.regie label.aide { display: grid; gap: 6px; }
+.espace { margin-top: 18px; }
+.alerte {
+  margin-bottom: 18px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #4a2a0c;
+  border: 1px solid var(--orange);
+  color: #ffd9a8;
+}
+.appareils { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.appareils li { display: flex; align-items: center; gap: 10px; }
+.appareils li span { flex: 1; font-weight: 600; }
+.appareils li small { color: var(--doux); }
+.appareils li.vide { color: var(--doux); }

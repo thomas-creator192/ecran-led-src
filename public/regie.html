@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Écran LED SRC — Régie</title>
+<link rel="icon" href="/img/icone.ico">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="regie">
+
+<header>
+  <img src="/img/logo-src.png" alt="">
+  <div class="titre">
+    <h1>Régie de l'écran LED</h1>
+    <p>SRC La Clayette · <span id="statut">connexion…</span> · <span id="version"></span></p>
+  </div>
+  <button id="quitter" class="discret court">Quitter l'app</button>
+</header>
+
+<div class="alerte" id="alerte-reseau" hidden></div>
+
+<div class="colonnes">
+  <div class="colonne">
+    <section class="bloc">
+      <h2>Diffusion sur l'écran LED</h2>
+      <label class="aide">Écran de diffusion
+        <select id="choix-ecran"><option>Recherche des écrans…</option></select>
+      </label>
+      <div class="boutons">
+        <button class="gros go" id="lancer">▶ Lancer la diffusion</button>
+        <button class="gros stop" id="arreter" hidden>⏹ Arrêter la diffusion</button>
+      </div>
+      <p class="aide" id="etat-diffusion">L'affichage s'ouvre en plein écran sur l'écran choisi.</p>
+    </section>
+
+    <section class="bloc">
+      <h2>Télécommande des bénévoles</h2>
+      <div class="qr"><img id="qr" alt="QR code de la télécommande"></div>
+      <p class="aide">Téléphone connecté au Wi-Fi du stade → appareil photo → scanner.</p>
+      <div class="url" id="url"></div>
+      <label class="aide" id="choix-reseau" hidden>Réseau utilisé par les téléphones :
+        <select id="reseau"></select>
+      </label>
+      <div class="boutons">
+        <button class="primaire" id="ouvrir-tel">Télécommande sur ce PC</button>
+        <button id="nouveau-code">Nouveau code</button>
+      </div>
+      <p class="aide">« Nouveau code » déconnecte tous les téléphones et change le QR code.</p>
+    </section>
+
+    <section class="bloc">
+      <h2>Téléphones connectés</h2>
+      <ul class="appareils" id="appareils"></ul>
+    </section>
+  </div>
+
+  <div class="colonne">
+    <section class="bloc">
+      <h2>Ce qu'affiche l'écran LED</h2>
+      <iframe class="apercu" src="/ecran?apercu=1" title="Aperçu de l'écran LED"></iframe>
+      <p class="aide">Si la diffusion automatique ne tombe pas sur le bon écran :
+        <button class="lien" id="ouvrir-ecran">ouvrir l'affichage dans une fenêtre</button>, la glisser sur l'écran LED puis double-cliquer dedans.</p>
+    </section>
+
+    <section class="bloc journal">
+      <h2>Journal du match</h2>
+      <ol id="journal"></ol>
+    </section>
+
+    <form class="bloc" id="reglages">
+      <h2>Réglages</h2>
+      <div class="champs">
+        <label>Nom domicile <input name="nomDom" maxlength="12"></label>
+        <label>Nom visiteur <input name="nomExt" maxlength="12"></label>
+        <label>Durée d'une mi-temps (min) <input name="dureeMT" type="number" min="1" max="60"></label>
+        <label>Durée d'une prolongation (min, 0 = aucune) <input name="dureeProl" type="number" min="0" max="30"></label>
+      </div>
+      <h2 class="espace">Zone d'affichage</h2>
+      <div class="champs">
+        <label>Mode
+          <select name="mode">
+            <option value="plein">Tout l'écran</option>
+            <option value="zone">Un rectangle précis</option>
+          </select>
+        </label>
+        <label>Position X (px) <input name="x" type="number" min="0"></label>
+        <label>Position Y (px) <input name="y" type="number" min="0"></label>
+        <label>Largeur (px) <input name="l" type="number" min="16"></label>
+        <label>Hauteur (px) <input name="h" type="number" min="16"></label>
+      </div>
+      <p class="aide">Si l'écran LED ne recopie qu'un coin de l'image, choisis « Un rectangle précis » et indique sa position et sa taille en pixels (données du logiciel de l'écran LED).</p>
+      <div class="boutons"><button class="primaire" type="submit">Enregistrer</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="voile" id="voile-quitte">
+  <div>
+    <img src="/img/logo-src.png" alt="">
+    <h1>L'app est arrêtée</h1>
+    <p>Tu peux fermer cette fenêtre. Pour la relancer : double-clic sur l'icône « Écran LED SRC » du bureau.</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="/js/commun.js"></script>
+<script src="/js/regie.js"></script>
+</body>
+</html>
