@@ -26,7 +26,7 @@ const REGLAGES_DEFAUT = {
   dureeProl: 15,
   // « plein » : l'affichage occupe toute la fenêtre. « zone » : seulement un rectangle
   // (utile quand l'écran LED ne recopie qu'un coin du bureau Windows).
-  zone: { mode: 'plein', x: 0, y: 0, l: 384, h: 128 },
+  zone: { mode: 'plein', x: 0, y: 0, l: 288, h: 96 }, // écran LED du stade : 288 × 96 pixels
   ecranLed: null, // écran Windows choisi pour la diffusion
 };
 // Deux bénévoles qui appuient sur « BUT » pour le même but ne doivent pas compter 2 buts.

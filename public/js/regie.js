@@ -172,6 +172,10 @@
         reglagesCharges = true;
       }
       Commun.rendreJournal($('journal'), etat.journal, 60);
+      const z = etat.reglages.zone;
+      $('apercu-reel').width = z.l;
+      $('apercu-reel').height = z.h;
+      $('taille-led').textContent = `${z.l} × ${z.h}`;
       if (premier) chargerSysteme();
     },
     (ok) => {

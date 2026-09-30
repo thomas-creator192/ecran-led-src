@@ -72,10 +72,10 @@
         </label>
         <label>Position X (px) <input name="x" type="number" min="0"></label>
         <label>Position Y (px) <input name="y" type="number" min="0"></label>
-        <label>Largeur (px) <input name="l" type="number" min="16"></label>
-        <label>Hauteur (px) <input name="h" type="number" min="16"></label>
+        <label>Largeur LED (px) <input name="l" type="number" min="16"></label>
+        <label>Hauteur LED (px) <input name="h" type="number" min="16"></label>
       </div>
-      <p class="aide">Si l'écran LED ne recopie qu'un coin de l'image, choisis « Un rectangle précis » et indique sa position et sa taille en pixels (données du logiciel de l'écran LED).</p>
+      <p class="aide">L'écran LED du stade fait 288 × 96 pixels. Si Windows le voit comme un écran plus grand et qu'il n'en recopie qu'un coin (souvent en haut à gauche), choisis « Un rectangle précis » avec X = 0 et Y = 0.</p>
       <div class="boutons"><button class="primaire" type="submit">Enregistrer</button></div>
     </form>
   </div>
@@ -84,6 +84,10 @@
     <section class="bloc">
       <h2>Ce qu'affiche l'écran LED</h2>
       <iframe class="apercu" src="/ecran?apercu=1" title="Aperçu de l'écran LED"></iframe>
+      <div class="taille-reelle">
+        <span class="aide">Taille réelle (<span id="taille-led">288 × 96</span> pixels) :</span>
+        <iframe id="apercu-reel" src="/ecran?apercu=1" width="288" height="96" title="Aperçu en taille réelle"></iframe>
+      </div>
       <p class="aide">Si la diffusion automatique ne tombe pas sur le bon écran :
         <button class="lien" id="ouvrir-ecran">ouvrir l'affichage dans une fenêtre</button>, la glisser sur l'écran LED puis double-cliquer dedans.</p>
     </section>

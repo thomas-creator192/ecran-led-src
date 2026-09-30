@@ -188,6 +188,8 @@ details[open] summary { margin-bottom: 12px; }
 .qr { background: #fff; border-radius: 12px; padding: 8px; }
 .qr img { display: block; width: 100%; aspect-ratio: 1; }
 .url { font-family: Consolas, monospace; font-size: 13px; color: var(--doux); word-break: break-all; margin: 10px 0; }
+.taille-reelle { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.taille-reelle iframe { border: 0; background: #000; display: block; }
 .apercu { aspect-ratio: 3 / 1; width: 100%; border: 0; border-radius: 8px; background: #000; display: block; }
 .champs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .champs .large { grid-column: 1 / -1; }
