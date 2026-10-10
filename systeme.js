@@ -1,6 +1,7 @@
 'use strict';
 // Tout ce qui touche à Windows : écrans branchés, navigateur (Edge ou Chrome),
 // fenêtre de diffusion plein écran sur l'écran LED, profil du réseau Wi-Fi.
+// Sur le player Raspberry, ces fonctions sont remplacées (voir en bas).
 const fs = require('fs');
 const path = require('path');
 const { spawn, execFile } = require('child_process');
@@ -103,4 +104,19 @@ async function reseauxPublics() {
   return sortie.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
 }
 
-module.exports = { ouvrirApp, listerEcrans, lancerDiffusion, arreterDiffusion, diffusionActive, reseauxPublics };
+// Sur le player Raspberry (Linux), l'affichage plein écran est lancé au démarrage par
+// installateur/kiosque.sh : rien à piloter ici.
+const SUR_PLAYER = {
+  ouvrirApp: () => {},
+  listerEcrans: async () => [],
+  lancerDiffusion: async () => {
+    throw 'Sur le player, l’affichage démarre tout seul sur la sortie HDMI.';
+  },
+  arreterDiffusion: async () => {},
+  diffusionActive: async () => true,
+  reseauxPublics: async () => [],
+};
+
+module.exports = process.platform === 'win32'
+  ? { ouvrirApp, listerEcrans, lancerDiffusion, arreterDiffusion, diffusionActive, reseauxPublics }
+  : SUR_PLAYER;

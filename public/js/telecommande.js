@@ -154,7 +154,7 @@
 
   fetch('/api/moi').then((r) => r.json()).then((m) => {
     if (!m.autorise) return $('voile-refuse').classList.add('visible');
-    if (m.local) return $('changer-prenom').remove(); // PC de régie : noté « Régie »
+    if (m.regie) return $('changer-prenom').remove(); // régie : notée « Régie » dans le journal
     if (m.prenom) return;
     // Téléphone qui a rescanné le QR code : on reprend son prénom habituel.
     if (lirePrenom()) enregistrerPrenom(lirePrenom());

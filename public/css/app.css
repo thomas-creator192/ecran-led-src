@@ -341,3 +341,14 @@ body.integre .barre-annuler { position: absolute; }
   .carte-spot { grid-template-columns: 90px minmax(0, 1fr); }
   .actions-spot { grid-column: 1 / -1; justify-content: flex-end; }
 }
+
+/* ---------- Connexion à la régie (code administrateur) ---------- */
+.page-admin { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+.connexion-admin { width: min(380px, 100%); display: grid; gap: 16px; justify-items: center; text-align: center; }
+.connexion-admin img { height: 120px; }
+.connexion-admin h1 { font-size: 22px; margin: 0; }
+.connexion-admin form, .connexion-admin form[hidden] + div { width: 100%; }
+.connexion-admin form { display: grid; gap: 12px; }
+.connexion-admin form[hidden], .connexion-admin [hidden] { display: none; }
+.erreur-texte { color: #ff9b91; margin: 0; }
+.lien-discret { color: var(--doux); font-size: 14px; }

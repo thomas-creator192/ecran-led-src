@@ -14,6 +14,40 @@ Les bénévoles le commandent depuis leur téléphone (QR code), sur le Wi-Fi du
 
 Rien d'autre à installer : le moteur de l'app est inclus.
 
+## Installer sur le player Raspberry Pi 5 (une seule fois)
+
+Montage au stade :
+```
+Câble RJ45 du club ──▶ [switch 5 ports] ──▶ Novastar (player de l'écran)
+                                        └─▶ Raspberry ──HDMI──▶ Novastar
+```
+
+**1. Préparer le Raspberry (à la maison, avec un écran, un clavier et une souris)**
+1. Il faut **Raspberry Pi OS 64 bits avec bureau** sur la carte microSD. Si la carte du kit ne démarre pas directement dessus :
+   installe-le depuis un PC avec **Raspberry Pi Imager** (raspberrypi.com/software), modèle « Raspberry Pi 5 », système « Raspberry Pi OS (64-bit) ».
+2. Démarre le Raspberry, suis l'assistant (langue, utilisateur, Wi-Fi ou câble réseau) jusqu'au bureau.
+3. Ouvre le **Terminal** (icône écran noir en haut) et colle cette commande :
+   ```
+   curl -fsSL https://raw.githubusercontent.com/thomas-creator192/ecran-led-src/main/installateur/installer-raspberry.sh | bash
+   ```
+4. Le script installe tout (quelques minutes), puis te demande de **choisir le code administrateur** (6 caractères minimum, à noter et garder pour toi).
+5. À la fin, il affiche l'adresse de la régie et redémarre. Au redémarrage, l'écran affiche tout seul le score en plein écran.
+
+**2. Au stade**
+1. Branche le Raspberry : courant, câble réseau vers le switch, HDMI vers l'entrée HDMI du Novastar.
+2. Dans **ViPlex**, passe le Novastar sur son **entrée HDMI** (mode synchrone / HDMI prioritaire) et règle la mise à l'échelle pour que l'image remplisse les 288 × 96 pixels.
+3. Depuis un ordinateur ou un téléphone du réseau du club, ouvre la régie : `http://ecran-src.local:8080/regie`
+   (ou `http://ADRESSE-DU-RASPBERRY:8080/regie`, affichée à la fin de l'installation), puis entre le code administrateur.
+4. Si l'écran LED ne montre qu'un coin de l'image : régie → Réglages → Zone d'affichage → « Un rectangle précis », X = 0, Y = 0, 288 × 96.
+5. Conseil : dans la box du club, réserve l'adresse du Raspberry (« bail DHCP statique ») pour qu'elle ne change jamais, puis imprime le QR code des bénévoles.
+
+**Comment il se comporte**
+- On l'allume : l'app démarre, l'écran affiche le score. Rien à faire.
+- Coupure de courant : il redémarre et reprend le match là où il en était. Un petit onduleur est conseillé (protège la carte microSD).
+- Mises à jour : à chaque démarrage, et la nuit entre 3 h et 5 h (jamais pendant un match). L'affichage se recharge tout seul.
+- Régie → « ↻ Recharger l'affichage » relance l'affichage de l'écran LED à distance.
+- Pour réinstaller (en gardant score, réglages, spots et code) : relancer la même commande dans le Terminal.
+
 ## Le jour du match
 
 1. Double-clic sur l'icône **« Écran LED SRC »** : la régie s'ouvre.
@@ -44,7 +78,7 @@ Les fichiers sont rangés avec les données de l'app et ne sont jamais touchés 
 
 ## Sécurité
 
-- La **régie** (réglages, QR code, diffusion, arrêt) ne s'ouvre que sur le PC du stade.
+- La **régie** et les **spots** s'ouvrent sur l'ordinateur où tourne l'app, ou depuis le réseau avec le **code administrateur** (stocké chiffré, 20 essais ratés en 10 minutes bloquent l'appareil). Changer le code déconnecte les autres administrateurs.
 - Un téléphone n'a accès à la télécommande **qu'après avoir scanné le QR code**. Chaque téléphone a son propre accès, visible dans la régie (« Téléphones connectés ») et **retirable** d'un clic. Un accès expire tout seul après 24 h sans utilisation.
 - **« Nouveau code »** change le QR code et déconnecte tous les téléphones.
 - Le prénom inscrit dans le journal est celui enregistré pour le téléphone : impossible d'agir sous le nom de quelqu'un d'autre.
@@ -69,6 +103,8 @@ La personne qui contrôle ce compte GitHub contrôle ce qui s'installe sur le PC
 
 - `lanceur.js` : point d'entrée de l'app installée (mise à jour, puis serveur).
 - `server.js` : le serveur (état du match, accès, diffusion en direct). `systeme.js` : écrans, navigateur, pare-feu.
+- `admin.js` : code et sessions administrateur. `maj.js` : mises à jour depuis GitHub. `spots.js` : spots annonceurs.
+- `installateur/installer-raspberry.sh` et `kiosque.sh` : installation et affichage plein écran du player Raspberry.
 - `public/ecran.html` : l'affichage de l'écran LED (dessiné en 1200 × 400, format 3:1, mis à l'échelle automatiquement).
 - `public/telecommande.html` : la télécommande des téléphones. `public/regie.html` : la régie.
 - `installateur/` : installation sur un PC. `outils/construire.ps1` : fabrique le fichier d'installation.

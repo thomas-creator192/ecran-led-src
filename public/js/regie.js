@@ -1,4 +1,5 @@
-// Page de régie, sur le PC qui fait tourner le serveur.
+// Page de régie : sur le PC qui fait tourner l'app, ou depuis le réseau avec le code administrateur
+// (c'est le cas du player Raspberry, qui n'a pas d'écran pour la régie).
 (() => {
   const $ = (id) => document.getElementById(id);
   const form = $('reglages');
@@ -67,10 +68,18 @@
   }
 
   async function chargerInfos() {
-    const r = await fetch('/api/regie');
-    if (!r.ok) return;
+    const r = await fetch('/api/regie').catch(() => null);
+    if (r && r.status === 403) return location.replace('/admin'); // session administrateur expirée
+    if (!r || !r.ok) return;
     infos = await r.json();
     $('version').textContent = 'version ' + infos.version;
+    const player = infos.plateforme !== 'win32';
+    $('diffusion-pc').hidden = player;
+    $('diffusion-player').hidden = !player;
+    $('aide-fenetre').hidden = player;
+    $('quitter').hidden = player || !infos.local;
+    $('deconnexion').hidden = infos.local;
+    rendreAccesAdmin();
     const choix = $('reseau');
     const ancien = choix.value;
     choix.replaceChildren(...infos.adresses.map((a) => new Option(`${a.nom} — ${a.adresse}`, a.adresse)));
@@ -78,12 +87,39 @@
     $('choix-reseau').hidden = infos.adresses.length < 2;
     afficherQr();
     rendreAppareils();
-    rendreDiffusion();
+    if (!player) rendreDiffusion();
   }
+
+  function rendreAccesAdmin() {
+    const ip = infos.adresses[0] && infos.adresses[0].adresse;
+    $('etat-admin').textContent = infos.adminDefini
+      ? `Code défini. La régie est accessible depuis le réseau du club : http://${ip || infos.nomReseau}:${infos.port}/regie`
+      : 'Pas encore de code : la régie n’est accessible que sur l’ordinateur où tourne l’app.';
+    $('champ-actuel').hidden = infos.local || !infos.adminDefini;
+  }
+  $('form-admin').onsubmit = async (ev) => {
+    ev.preventDefault();
+    const el = $('form-admin').elements;
+    if (el.nouveau.value !== el.confirmation.value) return toast('Les deux codes ne sont pas identiques.', true);
+    const r = await Commun.poster('/api/admin/code', { actuel: el.actuel.value, nouveau: el.nouveau.value });
+    if (!r.ok) return toast(r.message || 'Impossible d’enregistrer le code.', true);
+    $('form-admin').reset();
+    toast('Code administrateur enregistré');
+    chargerInfos();
+  };
+  $('deconnexion').onclick = async () => {
+    await Commun.poster('/api/admin/deconnexion');
+    location.replace('/admin');
+  };
+  $('recharger').onclick = async () => {
+    await Commun.poster('/api/ecran/recharger');
+    toast('L’affichage de l’écran LED se recharge.');
+  };
   $('reseau').onchange = afficherQr;
 
   async function chargerSysteme() {
     const s = await fetch('/api/systeme').then((r) => r.json());
+    if (!s.ecrans.length) return; // player : pas d'écran à choisir
     const choix = $('choix-ecran');
     const prefere = etat && etat.reglages.ecranLed;
     choix.replaceChildren(...s.ecrans.map((e) => new Option(
@@ -182,7 +218,10 @@
       if (premier) chargerSysteme();
     },
     (ok) => {
-      $('statut').textContent = ok ? 'app en marche' : 'app arrêtée — relance-la depuis l’icône du bureau';
+      const player = infos && infos.plateforme !== 'win32';
+      $('statut').textContent = ok
+        ? 'app en marche'
+        : player ? 'player injoignable — vérifie qu’il est allumé et sur le réseau' : 'app arrêtée — relance-la depuis l’icône du bureau';
       if (!ok && quitte) $('voile-quitte').classList.add('visible');
     }
   );

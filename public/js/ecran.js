@@ -125,7 +125,16 @@
     vueSpots.replaceChildren(el);
   }
 
+  // Après une mise à jour de l'app, ou sur demande de la régie, l'écran se recharge tout seul.
+  let signature = null;
+  function verifierRechargement(message) {
+    const s = `${message.version}|${message.rechargement}`;
+    if (signature && s !== signature) location.reload();
+    signature = s;
+  }
+
   function surEtat(nouvel, message) {
+    verifierRechargement(message);
     const ancien = etat;
     etat = nouvel;
     placer();

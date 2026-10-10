@@ -10,6 +10,8 @@ const crypto = require('crypto');
 const QRCode = require('qrcode');
 const systeme = require('./systeme');
 const Spots = require('./spots');
+const Admin = require('./admin');
+const maj = require('./maj');
 
 const VERSION = require('./package.json').version;
 
@@ -53,6 +55,7 @@ let code = nouveauCode();
 let historique = []; // pour « Annuler » : [{ match, libelle }]
 const dernierBut = { dom: 0, ext: 0 };
 const clients = new Set(); // { res, complet }
+let rechargement = 0; // augmenté pour demander à l'écran LED de se recharger
 // Téléphones autorisés : une session par appareil, révocable depuis la régie.
 const sessions = new Map(); // id → { id, prenom, cree, vu }
 const SESSION_INACTIVE_MS = 24 * 3600 * 1000;
@@ -264,6 +267,8 @@ function message(complet) {
     maintenant: Date.now(),
     annulable: complet && dernier ? dernier.libelle : null,
     spots: spots.publique(),
+    version: VERSION, // l'écran LED se recharge tout seul après une mise à jour
+    rechargement,
   });
 }
 function diffuser() {
@@ -274,7 +279,8 @@ function diffuser() {
 setInterval(diffuser, 15000);
 
 // ---------- Accès ----------
-// - La régie (et tout ce qui touche au PC) ne répond qu'au PC lui-même.
+// - La régie et les spots répondent au PC lui-même, ou à un administrateur connecté avec le code
+//   administrateur (indispensable sur le player Raspberry, qui n'a pas d'écran pour la régie).
 // - Un téléphone n'est autorisé qu'après avoir scanné le QR code : il reçoit alors
 //   sa propre session (cookie), qui expire après 24 h sans activité et que la régie peut révoquer.
 // - Les requêtes venant d'un autre site (Origin/Host inattendus) sont refusées.
@@ -302,8 +308,11 @@ function sessionDe(req) {
   s.vu = Date.now();
   return s;
 }
+function estAdmin(req) {
+  return estLocal(req) || !!admin.session(cookies(req).admin);
+}
 function autorise(req) {
-  return estLocal(req) || !!sessionDe(req);
+  return estAdmin(req) || !!sessionDe(req);
 }
 
 function adresses() {
@@ -321,7 +330,9 @@ function adresses() {
 // (DNS rebinding, requêtes forgées depuis une autre page).
 function hoteValide(req) {
   const hote = String(req.headers.host || '').toLowerCase();
-  const permis = ['localhost', '127.0.0.1', '[::1]', ...adresses().map((a) => a.adresse)].map((h) => `${h}:${PORT}`);
+  const nom = os.hostname().toLowerCase();
+  const permis = ['localhost', '127.0.0.1', '[::1]', nom, `${nom}.local`, ...adresses().map((a) => a.adresse)]
+    .map((h) => `${h}:${PORT}`);
   return permis.includes(hote);
 }
 function origineValide(req) {
@@ -352,8 +363,8 @@ const ENTETES_SECURITE = {
     "script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; frame-ancestors 'self'; form-action 'self'",
 };
 
-function json(res, statut, corps) {
-  res.writeHead(statut, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+function json(res, statut, corps, entetes = {}) {
+  res.writeHead(statut, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...entetes });
   res.end(JSON.stringify(corps));
 }
 function texte(res, statut, t) {
@@ -422,6 +433,8 @@ function flux(req, res) {
 const PROFIL_DIFFUSION = () => path.join(DOSSIER_DATA, 'navigateur-ecran');
 const URL_ECRAN = `http://localhost:${PORT}/ecran`;
 
+const cookieAdmin = (id) => `admin=${id}; Path=/; Max-Age=${30 * 86400}; SameSite=Strict; HttpOnly`;
+
 function listeSessions() {
   return [...sessions.values()]
     .sort((a, b) => b.vu - a.vu)
@@ -435,12 +448,14 @@ async function router(req, res) {
   const url = new URL(req.url, 'http://local');
   const p = url.pathname;
   const local = estLocal(req);
+  const regie = estAdmin(req);
 
   if (req.method === 'GET') {
-    if (p === '/') return rediriger(res, local ? '/regie' : '/telecommande');
-    if (p === '/regie') {
-      return local ? fichier(res, 'regie.html') : texte(res, 403, 'La régie ne s’ouvre que sur le PC qui fait tourner le serveur.');
-    }
+    if (p === '/') return rediriger(res, regie ? '/regie' : '/telecommande');
+    if (p === '/regie') return regie ? fichier(res, 'regie.html') : rediriger(res, '/admin');
+    if (p === '/spots') return regie ? fichier(res, 'spots.html') : rediriger(res, '/admin');
+    if (p === '/admin') return regie ? rediriger(res, '/regie') : fichier(res, 'admin.html');
+    if (p === '/api/admin') return json(res, 200, { defini: admin.defini(), connecte: regie, local });
     if (p === '/ecran') return fichier(res, 'ecran.html');
     if (p === '/telecommande') return fichier(res, 'telecommande.html');
     if (p === '/connexion') {
@@ -462,18 +477,21 @@ async function router(req, res) {
     if (p === '/api/flux') return flux(req, res);
     if (p === '/api/moi') {
       const s = sessionDe(req);
-      return json(res, 200, { autorise: local || !!s, local, prenom: s ? s.prenom : '' });
+      return json(res, 200, { autorise: regie || !!s, regie, prenom: s ? s.prenom : '' });
     }
     if (/^\/(img|js|css|vendor)\//.test(p)) return fichier(res, decodeURIComponent(p.slice(1)));
 
-    // --- Réservé au PC de régie ---
-    if (!local) return texte(res, 403, 'Refusé');
-    if (p === '/spots') return fichier(res, 'spots.html');
+    // --- Réservé à la régie (PC lui-même ou administrateur connecté) ---
+    if (!regie) return texte(res, 403, 'Refusé');
     if (p === '/api/spots') return json(res, 200, spots.complete());
     if (p.startsWith('/medias/')) return spots.servir(req, res, p.slice('/medias/'.length));
     if (p === '/api/regie') {
       return json(res, 200, {
         version: VERSION,
+        plateforme: process.platform,
+        local,
+        adminDefini: admin.defini(),
+        nomReseau: `${os.hostname().toLowerCase()}.local`,
         adresses: adresses(),
         port: PORT,
         code,
@@ -498,7 +516,7 @@ async function router(req, res) {
   if (req.method === 'POST') {
     // Envoi d'un fichier de spot (corps binaire) : PC de régie uniquement, depuis nos propres pages.
     if (p === '/api/spots/televerser') {
-      if (!local || !origineValide(req) || req.headers['x-spot'] !== '1') return json(res, 403, { ok: false, message: 'Refusé' });
+      if (!regie || !origineValide(req) || req.headers['x-spot'] !== '1') return json(res, 403, { ok: false, message: 'Refusé' });
       return spots.televerser(req, res, url);
     }
     // Seul du JSON envoyé par nos propres pages est accepté (bloque les formulaires d'autres sites).
@@ -507,12 +525,27 @@ async function router(req, res) {
     }
     const d = await lireJson(req);
 
+    if (p === '/api/admin/connexion') {
+      const ip = req.socket.remoteAddress;
+      if (tropDEchecs(ip)) return json(res, 429, { ok: false, message: 'Trop d’essais. Réessaie dans 10 minutes.' });
+      if (!admin.defini()) return json(res, 409, { ok: false, message: 'Aucun code administrateur n’a encore été défini.' });
+      if (!admin.verifier(d.code)) {
+        noterEchec(ip);
+        return json(res, 403, { ok: false, message: 'Code incorrect.' });
+      }
+      return json(res, 200, { ok: true }, { 'Set-Cookie': cookieAdmin(admin.ouvrirSession()) });
+    }
+    if (p === '/api/admin/deconnexion') {
+      admin.fermer(cookies(req).admin);
+      return json(res, 200, { ok: true }, { 'Set-Cookie': 'admin=; Path=/; Max-Age=0; SameSite=Strict; HttpOnly' });
+    }
+
     if (p === '/api/action') {
       const s = sessionDe(req);
-      if (!local && !s) {
+      if (!regie && !s) {
         return json(res, 403, { ok: false, refuse: true, message: 'Accès refusé : scanne le QR code de la régie.' });
       }
-      const qui = s ? s.prenom || 'Téléphone' : 'Régie';
+      const qui = regie ? 'Régie' : s.prenom || 'Téléphone';
       try {
         executer(d, qui);
       } catch (m) {
@@ -529,8 +562,26 @@ async function router(req, res) {
       return json(res, 200, { ok: true });
     }
 
-    // --- Réservé au PC de régie ---
-    if (!local) return json(res, 403, { ok: false });
+    // --- Réservé à la régie (PC lui-même ou administrateur connecté) ---
+    if (!regie) return json(res, 403, { ok: false });
+    if (p === '/api/admin/code') {
+      // Sur le PC lui-même, pas besoin de l'ancien code. À distance, il est redemandé.
+      if (admin.defini() && !local && !admin.verifier(d.actuel)) return json(res, 403, { ok: false, message: 'Code actuel incorrect.' });
+      try {
+        admin.definir(d.nouveau);
+      } catch (m) {
+        if (typeof m !== 'string') throw m;
+        return json(res, 400, { ok: false, message: m });
+      }
+      noter('Régie', 'Code administrateur modifié');
+      // Le nouveau code ferme toutes les sessions : celui qui vient de le changer reste connecté.
+      return json(res, 200, { ok: true }, local ? {} : { 'Set-Cookie': cookieAdmin(admin.ouvrirSession()) });
+    }
+    if (p === '/api/ecran/recharger') {
+      rechargement++;
+      diffuser();
+      return json(res, 200, { ok: true });
+    }
     if (p === '/api/spots') {
       try {
         spots.action(d);
@@ -579,6 +630,7 @@ async function router(req, res) {
       return json(res, 200, { ok: true });
     }
     if (p === '/api/quitter') {
+      if (!local || process.platform !== 'win32') return json(res, 403, { ok: false });
       json(res, 200, { ok: true });
       await systeme.arreterDiffusion(PROFIL_DIFFUSION());
       console.log('Arrêt demandé depuis la régie.');
@@ -593,6 +645,25 @@ async function router(req, res) {
 
 charger();
 const spots = Spots.creer({ dossierData: DOSSIER_DATA, surChangement: () => diffuser() });
+const admin = Admin.creer(DOSSIER_DATA);
+
+// Player Raspberry : il tourne en continu. Entre 3 h et 5 h du matin, hors match, il vérifie
+// s'il existe une mise à jour ; si oui, il s'arrête et le service le relance (lanceur.js l'installe).
+if (process.platform === 'linux') {
+  setInterval(async () => {
+    const heure = new Date().getHours();
+    if (heure < 3 || heure >= 5 || etat.phase === 'jeu' || etat.phase === 'pause') return;
+    try {
+      const version = await maj.nouvelleVersion();
+      if (version) {
+        console.log(`Version ${version} disponible : redémarrage pour l'installer.`);
+        process.exit(0);
+      }
+    } catch {
+      // pas d'Internet : on réessaiera
+    }
+  }, 30 * 60 * 1000);
+}
 const serveur = http.createServer((req, res) => {
   router(req, res).catch((err) => {
     console.error(err);

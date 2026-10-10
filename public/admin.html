@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Écran LED SRC — Accès régie</title>
+<link rel="icon" href="/img/icone.ico">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="page-admin">
+<main class="connexion-admin">
+  <img src="/img/logo-src.png" alt="">
+  <h1>Régie de l'écran LED</h1>
+
+  <form id="form" hidden>
+    <p class="aide">Entre le code administrateur pour accéder à la régie et aux spots.</p>
+    <input id="code" type="password" autocomplete="current-password" placeholder="Code administrateur" required>
+    <button class="gros go" type="submit">Entrer</button>
+    <p class="erreur-texte" id="erreur" hidden></p>
+  </form>
+
+  <div id="sans-code" hidden>
+    <p class="aide">Aucun code administrateur n'a encore été défini. Pour en créer un : ouvre la régie
+      sur l'ordinateur où tourne l'app (Réglages → Accès administrateur), ou relance l'installation du player.</p>
+  </div>
+
+  <a class="lien-discret" href="/telecommande">Je suis bénévole : aller à la télécommande</a>
+</main>
+<script src="/js/commun.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>
