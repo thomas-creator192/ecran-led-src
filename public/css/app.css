@@ -351,4 +351,6 @@ body.integre .barre-annuler { position: absolute; }
 .connexion-admin form { display: grid; gap: 12px; }
 .connexion-admin form[hidden], .connexion-admin [hidden] { display: none; }
 .erreur-texte { color: #ff9b91; margin: 0; }
+.champ-code { display: flex; gap: 8px; }
+.champ-code input { flex: 1; min-width: 0; }
 .lien-discret { color: var(--doux); font-size: 14px; }

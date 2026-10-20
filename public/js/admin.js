@@ -8,6 +8,14 @@
     if (a.defini) $('code').focus();
   });
 
+  // Voir ce qu'on tape (utile sur un clavier AZERTY : les chiffres demandent la touche Maj).
+  $('afficher').onclick = () => {
+    const visible = $('code').type === 'text';
+    $('code').type = visible ? 'password' : 'text';
+    $('afficher').textContent = visible ? 'Afficher' : 'Masquer';
+    $('code').focus();
+  };
+
   $('form').onsubmit = async (ev) => {
     ev.preventDefault();
     const r = await Commun.poster('/api/admin/connexion', { code: $('code').value });
