@@ -22,7 +22,7 @@ const PUBLIC = path.join(__dirname, 'public');
 const DOSSIER_DATA = process.env.ECRAN_LED_DATA || path.join(__dirname, 'data');
 const FICHIER_ETAT = path.join(DOSSIER_DATA, 'etat.json');
 
-const NOMS_PERIODE = { 1: '1re mi-temps', 2: '2e mi-temps', 3: 'prolongation 1', 4: 'prolongation 2' };
+const NOMS_PERIODE = { 1: '1re mi-temps', 2: '2e mi-temps', 3: '1re mi-temps de la prolongation', 4: '2e mi-temps de la prolongation' };
 const REGLAGES_DEFAUT = {
   nomDom: 'SRC',
   nomExt: 'VISITEUR',
@@ -36,17 +36,21 @@ const REGLAGES_DEFAUT = {
 // Deux bénévoles qui appuient sur « BUT » pour le même but ne doivent pas compter 2 buts.
 const ANTI_DOUBLE_BUT_MS = 10000;
 // Actions qui changent de phase : refusées si quelqu'un d'autre vient déjà de les faire.
-const ACTIONS_GARDEES = new Set(['coup_envoi', 'fin_periode', 'fin_match', 'nouveau_match']);
+const ACTIONS_GARDEES = new Set(['coup_envoi', 'fin_periode', 'fin_match', 'nouveau_match', 'prolongation', 'tirs_au_but']);
+// Tirs au but : 5 tirs par équipe, puis mort subite.
+const TIRS_AU_BUT = 5;
 
 function matchVierge() {
   return {
-    phase: 'avant', // avant | jeu | pause | fin
+    phase: 'avant', // avant | jeu | pause | tab (tirs au but) | fin
     periode: 0, // 1 et 2 = mi-temps, 3 et 4 = prolongations
     chrono: { enCours: false, debut: null, cumul: 0 },
     score: { dom: 0, ext: 0 },
     tempsAdd: null,
     but: null, // dernier but, déclenche l'animation sur l'écran
     ecran: 'score', // score | logo
+    tab: null, // tirs au but : { dom: [true, false…], ext: […] } (true = marqué)
+    vainqueur: null, // vainqueur des tirs au but : déclenche l'animation sur l'écran
   };
 }
 const CLES_MATCH = Object.keys(matchVierge());
@@ -108,6 +112,39 @@ function equipe(d) {
 function nomEquipe(eq) {
   return eq === 'dom' ? etat.reglages.nomDom : etat.reglages.nomExt;
 }
+function butsTab(eq) {
+  return etat.tab ? etat.tab[eq].filter(Boolean).length : 0;
+}
+function scoreTab() {
+  return `${butsTab('dom')}-${butsTab('ext')}`;
+}
+// Règles des tirs au but : une équipe gagne dès que l'autre ne peut plus revenir avec les tirs
+// qui lui restent sur les 5 ; à égalité après 5 tirs, mort subite à nombre de tirs égal.
+function vainqueurTab(t) {
+  const n = { dom: t.dom.length, ext: t.ext.length };
+  const b = { dom: butsTab('dom'), ext: butsTab('ext') };
+  if (n.dom <= TIRS_AU_BUT && n.ext <= TIRS_AU_BUT) {
+    if (b.dom > b.ext + (TIRS_AU_BUT - n.ext)) return 'dom';
+    if (b.ext > b.dom + (TIRS_AU_BUT - n.dom)) return 'ext';
+    if (n.dom < TIRS_AU_BUT || n.ext < TIRS_AU_BUT) return null;
+  }
+  if (n.dom === n.ext && b.dom !== b.ext) return b.dom > b.ext ? 'dom' : 'ext';
+  return null;
+}
+// Met à jour la phase après un tir (ou une correction) et lance l'animation du vainqueur.
+function verifierVainqueur() {
+  const gagnant = vainqueurTab(etat.tab);
+  if (!gagnant) {
+    etat.phase = 'tab';
+    etat.vainqueur = null;
+    return '';
+  }
+  etat.phase = 'fin';
+  if (!etat.vainqueur || etat.vainqueur.equipe !== gagnant) {
+    etat.vainqueur = { equipe: gagnant, id: crypto.randomUUID(), t: Date.now() };
+  }
+  return ` — ${nomEquipe(gagnant)} vainqueur`;
+}
 function scoreTexte() {
   return `${etat.reglages.nomDom} ${etat.score.dom}-${etat.score.ext} ${etat.reglages.nomExt}`;
 }
@@ -131,6 +168,43 @@ const ACTIONS = {
     });
     return `Coup d'envoi de la ${NOMS_PERIODE[p]}`;
   },
+  // Fin de la 2e mi-temps → prolongation (le match reprendra à 90:00).
+  prolongation() {
+    if (etat.phase !== 'jeu' || etat.periode !== 2) throw 'La prolongation se décide à la fin de la 2e mi-temps.';
+    if (!etat.reglages.dureeProl) throw 'Les prolongations sont désactivées dans les réglages.';
+    arreter(etat.chrono);
+    etat.phase = 'pause';
+    etat.tempsAdd = null;
+    return 'Fin du temps réglementaire : prolongation';
+  },
+  // Fin de la prolongation (ou du temps réglementaire sans prolongation) → séance de tirs au but.
+  tirs_au_but() {
+    const finProlongation = etat.periode === 4 && (etat.phase === 'jeu' || etat.phase === 'pause');
+    const sansProlongation = etat.periode === 2 && etat.phase === 'jeu' && !etat.reglages.dureeProl;
+    if (!finProlongation && !sansProlongation) throw 'Les tirs au but se décident à la fin de la prolongation.';
+    arreter(etat.chrono);
+    Object.assign(etat, { phase: 'tab', tempsAdd: null, ecran: 'score', tab: { dom: [], ext: [] }, vainqueur: null });
+    return 'Séance de tirs au but';
+  },
+  tab(d) {
+    const eq = equipe(d);
+    if (etat.phase !== 'tab') throw 'Aucune séance de tirs au but en cours.';
+    const autre = eq === 'dom' ? 'ext' : 'dom';
+    // Les équipes tirent à tour de rôle : bloque aussi un double appui sur le même tir.
+    if (etat.tab[eq].length > etat.tab[autre].length) throw `C'est au tour de ${nomEquipe(autre)} de tirer.`;
+    etat.tab[eq].push(!!d.reussi);
+    const libelle = `Tir au but ${nomEquipe(eq)} : ${d.reussi ? 'marqué' : 'manqué'} (${scoreTab()})`;
+    return libelle + verifierVainqueur();
+  },
+  tab_corriger(d) {
+    const eq = equipe(d);
+    if (!etat.tab) throw 'Aucune séance de tirs au but.';
+    const tirs = etat.tab[eq];
+    if (!tirs.length) throw `${nomEquipe(eq)} n'a encore tiré aucun tir au but.`;
+    if (d.mode === 'inverser') tirs[tirs.length - 1] = !tirs[tirs.length - 1];
+    else tirs.pop();
+    return `Tirs au but corrigés : ${scoreTab()}` + verifierVainqueur();
+  },
   fin_periode() {
     if (etat.phase !== 'jeu') throw 'Aucune période en cours.';
     arreter(etat.chrono);
@@ -139,7 +213,7 @@ const ACTIONS = {
     return `Fin de la ${NOMS_PERIODE[etat.periode]}`;
   },
   fin_match() {
-    if (etat.phase !== 'jeu' && etat.phase !== 'pause') throw 'Aucun match en cours.';
+    if (etat.phase !== 'jeu' && etat.phase !== 'pause' && etat.phase !== 'tab') throw 'Aucun match en cours.';
     arreter(etat.chrono);
     etat.phase = 'fin';
     etat.tempsAdd = null;
@@ -168,6 +242,7 @@ const ACTIONS = {
   },
   but(d) {
     const eq = equipe(d);
+    if (etat.phase === 'tab') throw 'Pendant les tirs au but, utilise les boutons BUT / Manqué des tirs au but.';
     if (Date.now() - dernierBut[eq] < ANTI_DOUBLE_BUT_MS) throw `But ${nomEquipe(eq)} déjà compté à l'instant.`;
     dernierBut[eq] = Date.now();
     etat.score[eq]++;
@@ -227,7 +302,9 @@ function executer(d, qui) {
   const avant = photo();
   let libelle = action(d);
   // Le match reprend l'écran : coup d'envoi, but ou retour au score arrêtent les spots annonceurs.
-  if (['coup_envoi', 'but', 'ecran'].includes(d.type) && spots.arreterPourLeMatch()) libelle += ' (spots arrêtés)';
+  if (['coup_envoi', 'but', 'ecran', 'tirs_au_but', 'tab'].includes(d.type) && spots.arreterPourLeMatch()) {
+    libelle += ' (spots arrêtés)';
+  }
   historique.push({ match: avant, libelle });
   if (historique.length > 50) historique.shift();
   noter(qui, libelle);

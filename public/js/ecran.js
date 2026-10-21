@@ -133,6 +133,58 @@
     signature = s;
   }
 
+  // ---------- Vainqueur des tirs au but ----------
+  const DUREE_VAINQUEUR = 8000;
+  let vainqueurVu = null;
+  let vainqueurAnime = null;
+  let finVainqueur = null;
+  function arreterVainqueur() {
+    clearTimeout(finVainqueur);
+    $('vainqueur').classList.remove('actif');
+    vainqueurAnime = null;
+  }
+  function jouerVainqueur(v) {
+    const el = $('vainqueur');
+    el.classList.remove('actif', 'ext');
+    void el.offsetWidth; // relance les animations CSS
+    el.classList.toggle('ext', v.equipe === 'ext');
+    $('vainqueur-equipe').textContent = v.equipe === 'ext' ? etat.reglages.nomExt : etat.reglages.nomDom;
+    el.classList.add('actif');
+    vainqueurAnime = v.id;
+    clearTimeout(finVainqueur);
+    finVainqueur = setTimeout(arreterVainqueur, DUREE_VAINQUEUR);
+  }
+  function majVainqueur() {
+    const v = etat.vainqueur;
+    if (vainqueurAnime && (!v || v.id !== vainqueurAnime)) arreterVainqueur();
+    if (v && v.id !== vainqueurVu) {
+      vainqueurVu = v.id;
+      if (Commun.maintenant() - v.t < DUREE_VAINQUEUR - 500) jouerVainqueur(v);
+    }
+  }
+
+  // ---------- Tirs au but : 5 ronds par équipe (vert marqué, rouge manqué), puis le score ----------
+  function rendreTab() {
+    $('tab-nom-dom').textContent = etat.reglages.nomDom;
+    $('tab-nom-ext').textContent = etat.reglages.nomExt;
+    const score = Commun.scoreTab(etat);
+    for (const eq of ['dom', 'ext']) {
+      const tirs = etat.tab[eq];
+      const conteneur = $('tirs-' + eq);
+      // Reconstruit seulement si un tir a changé (sinon l'animation des ronds se relancerait).
+      const cle = tirs.slice(0, 5).join(',');
+      if (conteneur.dataset.cle !== cle) {
+        conteneur.dataset.cle = cle;
+        conteneur.replaceChildren(...[0, 1, 2, 3, 4].map((i) => {
+          const rond = document.createElement('span');
+          rond.className = 'rond' + (tirs[i] === true ? ' marque' : tirs[i] === false ? ' rate' : '');
+          return rond;
+        }));
+      }
+      $('tab-s-' + eq).textContent = score[eq];
+    }
+  }
+
   function surEtat(nouvel, message) {
     verifierRechargement(message);
     const ancien = etat;
@@ -158,6 +210,7 @@
       }
     }
     premierMessage = false;
+    majVainqueur();
     rendu();
   }
 
@@ -165,8 +218,14 @@
     if (!etat) return;
     placer(); // aussi en continu : certains PC ne signalent pas le changement de résolution
     const logo = etat.ecran === 'logo';
+    const tab = etat.phase === 'tab';
     $('vue-logo').classList.toggle('visible', logo);
-    $('vue-score').classList.toggle('visible', !logo);
+    $('vue-tab').classList.toggle('visible', !logo && tab);
+    $('vue-score').classList.toggle('visible', !logo && !tab);
+    if (etat.tab) rendreTab();
+    const st = Commun.scoreTab(etat);
+    $('tab-final').hidden = !(st && etat.phase === 'fin');
+    $('tab-final').textContent = st ? `TIRS AU BUT ${st.dom}-${st.ext}` : '';
 
     $('nom-dom').textContent = etat.reglages.nomDom;
     $('nom-ext').textContent = etat.reglages.nomExt;
@@ -175,15 +234,12 @@
 
     const ligne = $('ligne-chrono');
     const add = $('add');
-    let libelle = null;
-    if (etat.phase === 'pause') libelle = etat.periode === 1 ? 'MI-TEMPS' : 'PAUSE';
-    if (etat.phase === 'fin') libelle = 'FIN';
-    const c = Commun.chrono(etat);
-    ligne.classList.toggle('libelle', !!libelle);
-    // Au-delà de 45:00 / 90:00 le chrono continue de tourner, en rouge.
-    ligne.classList.toggle('depasse', !libelle && etat.phase === 'jeu' && c.depasse);
-    $('chrono').textContent = libelle || c.texte;
-    const montrerAdd = !libelle && etat.phase === 'jeu' && etat.tempsAdd;
+    const c = Commun.affichageChrono(etat);
+    ligne.classList.toggle('libelle', c.libelle);
+    // Au-delà de 45:00, 90:00, 105:00 et 120:00, le chrono continue de tourner, en rouge.
+    ligne.classList.toggle('depasse', c.depasse);
+    $('chrono').textContent = c.texte;
+    const montrerAdd = !c.libelle && etat.phase === 'jeu' && etat.tempsAdd;
     add.classList.toggle('visible', !!montrerAdd);
     add.textContent = montrerAdd ? '+' + etat.tempsAdd : '';
     ajusterLargeur(ligne);

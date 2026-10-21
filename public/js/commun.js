@@ -5,7 +5,12 @@ const Commun = (() => {
   let decalage = 0;
   const maintenant = () => Date.now() + decalage;
 
-  const NOMS_PERIODE = { 1: '1re mi-temps', 2: '2e mi-temps', 3: 'Prolongation 1', 4: 'Prolongation 2' };
+  const NOMS_PERIODE = {
+    1: '1re mi-temps',
+    2: '2e mi-temps',
+    3: '1re mi-temps de la prolongation',
+    4: '2e mi-temps de la prolongation',
+  };
 
   function connecter(surEtat, surStatut = () => {}) {
     const source = new EventSource('/api/flux');
@@ -23,16 +28,21 @@ const Commun = (() => {
     return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
   }
 
-  // Le chrono monte (0 → 45, 45 → 90…) et continue au-delà de la durée de la période
-  // (`depasse` : affiché en rouge) ; le temps joué en plus est dans `extra`.
-  function chrono(etat) {
+  // [minute de départ, durée] de chaque période.
+  function bornesPeriode(etat, p) {
     const r = etat.reglages;
-    const bornes = {
+    return {
       1: [0, r.dureeMT],
       2: [r.dureeMT, r.dureeMT],
       3: [2 * r.dureeMT, r.dureeProl],
       4: [2 * r.dureeMT + r.dureeProl, r.dureeProl],
-    }[etat.periode];
+    }[p];
+  }
+
+  // Le chrono monte (0 → 45, 45 → 90…) et continue au-delà de la durée de la période
+  // (`depasse` : affiché en rouge) ; le temps joué en plus est dans `extra`.
+  function chrono(etat) {
+    const bornes = bornesPeriode(etat, etat.periode);
     if (!bornes) return { texte: '00:00', depasse: false, extra: '' };
     const c = etat.chrono;
     const ecoule = c.cumul + (c.enCours ? Math.max(0, maintenant() - c.debut) : 0);
@@ -45,10 +55,35 @@ const Commun = (() => {
     };
   }
 
+  // Ce qu'affiche la ligne du chrono selon le moment du match.
+  // `libelle` : un mot (MI-TEMPS, FIN…) plutôt qu'un temps.
+  function affichageChrono(etat) {
+    if (etat.phase === 'fin') return { texte: 'FIN', libelle: true, depasse: false };
+    if (etat.phase === 'tab') return { texte: 'TIRS AU BUT', libelle: true, depasse: false };
+    if (etat.phase === 'pause') {
+      if (etat.periode === 1) return { texte: 'MI-TEMPS', libelle: true, depasse: false };
+      // Avant chaque mi-temps de la prolongation : le temps repart de 90:00, puis de 105:00.
+      const suivante = bornesPeriode(etat, etat.periode + 1);
+      if (suivante && etat.reglages.dureeProl) return { texte: mmss(suivante[0] * 60000), libelle: false, depasse: false };
+      return { texte: 'PAUSE', libelle: true, depasse: false };
+    }
+    const c = chrono(etat);
+    return { texte: c.texte, libelle: false, depasse: etat.phase === 'jeu' && c.depasse, extra: c.extra };
+  }
+
+  // Score des tirs au but (buts marqués), ou null s'il n'y a pas eu de tirs au but.
+  function scoreTab(etat) {
+    if (!etat.tab) return null;
+    return { dom: etat.tab.dom.filter(Boolean).length, ext: etat.tab.ext.filter(Boolean).length };
+  }
+
   function libellePhase(etat) {
     if (etat.phase === 'avant') return 'Avant-match';
-    if (etat.phase === 'fin') return 'Fin du match';
-    if (etat.phase === 'pause') return etat.periode === 1 ? 'Mi-temps' : 'Pause';
+    if (etat.phase === 'fin') return etat.tab ? 'Fin du match (tirs au but)' : 'Fin du match';
+    if (etat.phase === 'tab') return 'Tirs au but';
+    if (etat.phase === 'pause') {
+      return { 1: 'Mi-temps', 2: 'Avant la prolongation', 3: 'Mi-temps de la prolongation' }[etat.periode] || 'Pause';
+    }
     return NOMS_PERIODE[etat.periode] + (etat.chrono.enCours ? '' : ' (chrono en pause)');
   }
 
@@ -79,5 +114,5 @@ const Commun = (() => {
     }));
   }
 
-  return { connecter, maintenant, chrono, libellePhase, envoyer, poster, mmss, rendreJournal };
+  return { connecter, maintenant, chrono, affichageChrono, scoreTab, libellePhase, envoyer, poster, mmss, rendreJournal };
 })();

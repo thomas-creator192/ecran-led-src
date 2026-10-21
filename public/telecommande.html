@@ -27,10 +27,20 @@
 <main>
   <section class="bloc pile" id="principal"></section>
 
-  <section class="bloc pile">
-    <button class="gros but-dom" data-but="dom">⚽ BUT <span class="n-dom">SRC</span></button>
-    <button class="gros but-ext" data-but="ext">⚽ BUT <span class="n-ext">VISITEUR</span></button>
-    <p class="aide">Le bouton BUT ajoute le point et lance l'animation sur l'écran.</p>
+  <section class="bloc pile" id="bloc-buts">
+    <div class="tab-resume" id="tab-resume" hidden>
+      <div><span class="n-dom">SRC</span><span class="ronds" id="ronds-dom"></span><b id="tab-dom">0</b></div>
+      <div><span class="n-ext">VISITEUR</span><span class="ronds" id="ronds-ext"></span><b id="tab-ext">0</b></div>
+    </div>
+    <div class="ligne-buts">
+      <button class="gros but-dom" data-but="dom">⚽ BUT <span class="n-dom">SRC</span></button>
+      <button class="gros manque" data-manque="dom" hidden>✕ Manqué <span class="n-dom">SRC</span></button>
+    </div>
+    <div class="ligne-buts">
+      <button class="gros but-ext" data-but="ext">⚽ BUT <span class="n-ext">VISITEUR</span></button>
+      <button class="gros manque" data-manque="ext" hidden>✕ Manqué <span class="n-ext">VISITEUR</span></button>
+    </div>
+    <p class="aide" id="aide-buts">Le bouton BUT ajoute le point et lance l'animation sur l'écran.</p>
   </section>
 
   <section class="bloc pile" id="bloc-add">
@@ -49,7 +59,12 @@
 
   <details class="bloc">
     <summary>Corriger le score</summary>
-    <div class="pile">
+    <div class="pile" id="corrige-tab" hidden>
+      <p class="aide">Tirs au but : corrige le dernier tir de chaque équipe.</p>
+      <div class="corrige-tir"><span class="n-dom">SRC</span><button data-tab-retirer="dom">Retirer</button><button data-tab-inverser="dom">But ↔ Manqué</button></div>
+      <div class="corrige-tir"><span class="n-ext">VISITEUR</span><button data-tab-retirer="ext">Retirer</button><button data-tab-inverser="ext">But ↔ Manqué</button></div>
+    </div>
+    <div class="pile" id="corrige-match">
       <div class="corrige"><span class="n-dom">SRC</span><button data-score="dom" data-delta="-1">−1</button><button data-score="dom" data-delta="1">+1</button></div>
       <div class="corrige"><span class="n-ext">VISITEUR</span><button data-score="ext" data-delta="-1">−1</button><button data-score="ext" data-delta="1">+1</button></div>
       <p class="aide">Sans animation. Pour une erreur de but, le bouton « Annuler » en bas suffit.</p>

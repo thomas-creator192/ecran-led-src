@@ -21,6 +21,7 @@
         <div class="score">
           <span class="chiffre" id="s-dom">0</span><span class="tiret">-</span><span class="chiffre" id="s-ext">0</span>
         </div>
+        <div class="tab-final" id="tab-final" hidden></div>
       </div>
       <div class="equipe ext">
         <svg class="blason blason-ext" viewBox="0 0 100 116" aria-hidden="true">
@@ -39,6 +40,28 @@
       </div>
     </div>
 
+    <div id="vue-tab" class="vue vue-tab">
+      <div class="tab-ligne dom">
+        <div class="tab-equipe">
+          <img class="tab-blason" src="/img/logo-src.png" alt="">
+          <div class="tab-nom" id="tab-nom-dom">SRC</div>
+        </div>
+        <div class="tab-tirs" id="tirs-dom"></div>
+        <div class="tab-score" id="tab-s-dom">0</div>
+      </div>
+      <div class="tab-ligne ext">
+        <div class="tab-equipe">
+          <svg class="tab-blason blason-ext" viewBox="0 0 100 116" aria-hidden="true">
+          <path d="M50 5 L93 19 V58 C93 86 74 103 50 111 C26 103 7 86 7 58 V19 Z"/>
+          <text x="50" y="72" text-anchor="middle">EXT</text>
+        </svg>
+          <div class="tab-nom" id="tab-nom-ext">VISITEUR</div>
+        </div>
+        <div class="tab-tirs" id="tirs-ext"></div>
+        <div class="tab-score" id="tab-s-ext">0</div>
+      </div>
+    </div>
+
     <div id="vue-spots" class="spots"></div>
 
     <div id="but" class="but">
@@ -47,6 +70,15 @@
       <div class="but-textes">
         <div class="but-texte">BUT !</div>
         <div class="but-equipe" id="but-equipe">VISITEUR</div>
+      </div>
+    </div>
+
+    <div id="vainqueur" class="but vainqueur">
+      <div class="but-fond"></div>
+      <img class="but-logo" src="/img/logo-src.png" alt="">
+      <div class="but-textes">
+        <div class="vainqueur-equipe" id="vainqueur-equipe">SRC</div>
+        <div class="vainqueur-texte">VAINQUEUR !</div>
       </div>
     </div>
 

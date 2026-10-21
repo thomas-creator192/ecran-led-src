@@ -60,6 +60,20 @@ Câble RJ45 du club ──▶ [switch 5 ports] ──▶ Novastar (player de l'�
 4. Sur le téléphone : **Coup d'envoi**, **BUT**, **temps additionnel**, **fin de mi-temps**… Le bouton orange **Annuler** rattrape n'importe quelle erreur.
 5. Après le match : **« Quitter l'app »** en haut de la régie.
 
+## Prolongation et tirs au but
+
+- **Fin de la 2e mi-temps** : deux boutons, « Fin du match » ou « Prolongation ».
+  Avec « Prolongation », l'écran affiche 90:00 ; puis « Début de la 1re mi-temps de la prolongation » (jusqu'à 105:00),
+  « Fin de la 1re mi-temps de la prolongation » (l'écran affiche 105:00), « Début de la 2e mi-temps de la prolongation » (jusqu'à 120:00).
+  Le chrono passe en rouge au-delà de 105:00 et de 120:00.
+- **Fin de la prolongation** : « Fin du match » ou « Tirs au but ».
+- **Tirs au but** : l'écran affiche une ligne par équipe, 5 ronds (vert = marqué, rouge = manqué) et le score des tirs.
+  Sur le téléphone : BUT ou Manqué pour chaque équipe, chacune à son tour (un double appui est refusé).
+  La séance s'arrête toute seule dès qu'une équipe ne peut plus être rattrapée ; à égalité après 5 tirs, mort subite
+  (les ronds ne changent plus, seul le score évolue). Le vainqueur déclenche l'animation « VAINQUEUR ! »,
+  puis l'écran de fin affiche FIN, le score du match et, en dessous, « TIRS AU BUT 4-3 ».
+- **Erreur pendant les tirs au but** : bouton Annuler, ou « Corriger le score » → Retirer / But ↔ Manqué sur le dernier tir.
+
 ## Spots annonceurs (avant et après les matchs)
 
 Dans la régie, bouton **« 📺 Spots annonceurs »** :

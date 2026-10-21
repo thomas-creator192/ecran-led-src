@@ -14,6 +14,8 @@
   --orange: #d98a2b;
 }
 * { box-sizing: border-box; }
+/* Un élément masqué reste masqué, même si son style lui donne un affichage (grid, flex…). */
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
@@ -93,6 +95,17 @@ input, select {
 .discret { background: transparent; border: 1px solid var(--bord); color: var(--doux); width: 100%; }
 .but-dom { background: var(--bleu-vif); font-size: 24px; padding: 26px 14px; }
 .but-ext { background: var(--gris); font-size: 24px; padding: 26px 14px; }
+.ligne-buts { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.ligne-buts.tab { grid-template-columns: 1fr 1fr; }
+.ligne-buts.tab .gros { font-size: 18px; padding: 22px 8px; }
+.manque { background: var(--rouge); }
+.tab-resume { display: grid; gap: 6px; padding: 10px 12px; border-radius: 12px; background: var(--nuit); }
+.tab-resume > div { display: grid; grid-template-columns: 1fr auto 40px; align-items: center; gap: 10px; }
+.tab-resume span:first-child { color: var(--doux); }
+.tab-resume b { font-family: Bahnschrift, sans-serif; font-size: 26px; text-align: right; }
+.ronds { letter-spacing: 2px; white-space: nowrap; }
+.corrige-tir { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px; }
+.corrige-tir span { color: var(--doux); }
 .corrige { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px; }
 .corrige span { color: var(--doux); }
 .corrige button { width: 64px; font-size: 20px; font-weight: 700; }

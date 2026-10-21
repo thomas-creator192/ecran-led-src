@@ -109,6 +109,51 @@ body.apercu { cursor: default; }
 .chrono.depasse .add { background: #ff2b2b; color: #fff; }
 .add.visible { display: block; }
 
+/* Fin de match après tirs au but : le score des tirs au but sous le score du match. */
+.tab-final { font-size: 52px; line-height: 1; letter-spacing: 3px; color: var(--bleu-clair); white-space: nowrap; }
+
+/* ---------- Tirs au but : une ligne par équipe ---------- */
+.vue-tab.visible { display: grid; grid-template-rows: 1fr 1fr; }
+.tab-ligne {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr) 170px;
+  align-items: center;
+  min-height: 0;
+}
+.tab-ligne.dom { border-bottom: 4px solid #050b14; }
+.tab-equipe {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.tab-ligne.dom .tab-equipe { background: linear-gradient(160deg, #2f6d9e, #173d5e); }
+.tab-ligne.ext .tab-equipe { background: linear-gradient(160deg, #454b55, #22262c); }
+.tab-blason { height: 128px; width: auto; }
+.tab-blason.blason-ext { width: 110px; height: 128px; }
+.tab-nom { font-size: 50px; line-height: 1; letter-spacing: 2px; white-space: nowrap; }
+.tab-tirs { display: flex; justify-content: center; gap: 26px; }
+.rond {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 8px solid #c9ced6;
+  box-sizing: border-box;
+}
+.rond.marque { background: #22c55e; border-color: #22c55e; animation: rond .5s ease-out; }
+.rond.rate { background: #ef4444; border-color: #ef4444; animation: rond .5s ease-out; }
+@keyframes rond { from { transform: scale(1.4); } }
+.tab-score { font-size: 160px; line-height: 1; text-align: center; }
+
+/* ---------- Vainqueur des tirs au but (même animation que le but, plus longue) ---------- */
+.vainqueur .but-fond { animation-duration: 8s, 8s; }
+.vainqueur .but-logo { animation-duration: 8s; }
+.vainqueur .but-textes { animation-duration: 8s; }
+.vainqueur-equipe { font-size: 110px; line-height: .9; letter-spacing: 4px; }
+.vainqueur-texte { font-size: 170px; line-height: .9; animation: flash .5s steps(1) .8s 12; }
+
 /* ---------- Logo du club ---------- */
 #vue-logo {
   grid-template-columns: auto auto;

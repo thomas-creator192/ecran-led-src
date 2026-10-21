@@ -34,25 +34,31 @@
   function actionsPrincipales(e) {
     const prolongations = e.reglages.dureeProl > 0;
     const confirmFin = 'Terminer le match ?';
+    const finMatch = { type: 'fin_match', texte: '⏹ Fin du match', classe: 'stop', confirmation: confirmFin };
+    const tirsAuBut = { type: 'tirs_au_but', texte: '🎯 Tirs au but', classe: 'go', confirmation: 'Lancer la séance de tirs au but ?' };
     if (e.phase === 'avant') return [{ type: 'coup_envoi', texte: "▶ Coup d'envoi 1re mi-temps", classe: 'go' }];
     if (e.phase === 'fin') {
       return [{ type: 'nouveau_match', texte: 'Nouveau match (remet à 0-0)', classe: 'go', confirmation: 'Remettre le score à 0-0 et le chrono à zéro ?' }];
     }
+    if (e.phase === 'tab') {
+      return [{ type: 'fin_match', texte: 'Arrêter les tirs au but (fin du match)', classe: 'discret', confirmation: 'Arrêter la séance sans vainqueur ?' }];
+    }
     if (e.phase === 'jeu') {
       if (e.periode === 1) return [{ type: 'fin_periode', texte: '⏹ Fin de la 1re mi-temps', classe: 'stop' }];
+      // Fin de la 2e mi-temps : fin du match, ou prolongation (ou tirs au but si pas de prolongation).
       if (e.periode === 2) {
-        const liste = [{ type: 'fin_match', texte: '⏹ Fin du match', classe: 'stop', confirmation: confirmFin }];
-        if (prolongations) liste.push({ type: 'fin_periode', texte: 'Fin du temps réglementaire → prolongations', classe: 'discret' });
-        return liste;
+        return [finMatch, prolongations
+          ? { type: 'prolongation', texte: '⏱ Prolongation', classe: 'go', confirmation: 'Passer en prolongation ?' }
+          : tirsAuBut];
       }
-      if (e.periode === 3) return [{ type: 'fin_periode', texte: '⏹ Fin de la prolongation 1', classe: 'stop' }];
-      return [{ type: 'fin_match', texte: '⏹ Fin du match', classe: 'stop', confirmation: confirmFin }];
+      if (e.periode === 3) return [{ type: 'fin_periode', texte: '⏹ Fin de la 1re mi-temps de la prolongation', classe: 'stop' }];
+      return [finMatch, tirsAuBut];
     }
     // pause
     if (e.periode === 1) return [{ type: 'coup_envoi', texte: "▶ Coup d'envoi 2e mi-temps", classe: 'go' }];
-    const suivante = e.periode === 2 ? 'prolongation 1' : 'prolongation 2';
+    const suivante = e.periode === 2 ? '1re' : '2e';
     return [
-      { type: 'coup_envoi', texte: `▶ Coup d'envoi ${suivante}`, classe: 'go' },
+      { type: 'coup_envoi', texte: `▶ Début de la ${suivante} mi-temps de la prolongation`, classe: 'go' },
       { type: 'fin_match', texte: 'Terminer le match', classe: 'discret', confirmation: confirmFin },
     ];
   }
@@ -85,13 +91,11 @@
   // ---------- Affichage ----------
   function rendreChrono() {
     if (!etat) return;
-    const c = Commun.chrono(etat);
-    let texte = c.texte;
-    if (etat.phase === 'pause') texte = etat.periode === 1 ? 'MI-TEMPS' : 'PAUSE';
-    if (etat.phase === 'fin') texte = 'FIN';
-    $('chrono').textContent = texte;
-    $('chrono').classList.toggle('depasse', etat.phase === 'jeu' && c.depasse);
-    $('extra').textContent = etat.phase === 'jeu' && c.depasse ? `${c.extra} joué en plus` : '';
+    const c = Commun.affichageChrono(etat);
+    $('chrono').textContent = c.texte;
+    $('chrono').classList.toggle('depasse', c.depasse);
+    const st = Commun.scoreTab(etat);
+    $('extra').textContent = st ? `T.A.B. ${st.dom}-${st.ext}` : c.depasse ? `${c.extra} joué en plus` : '';
     $('phase').textContent = Commun.libellePhase(etat);
   }
 
@@ -104,6 +108,7 @@
     rendreChrono();
     rendrePrincipal();
 
+    rendreTab();
     const enJeu = etat.phase === 'jeu';
     $('bloc-add').style.display = enJeu ? '' : 'none';
     puces.querySelectorAll('button').forEach((b) => b.classList.toggle('actif', Number(b.dataset.minutes) === (etat.tempsAdd || 0)));
@@ -122,8 +127,40 @@
     Commun.rendreJournal($('journal'), etat.journal, 5);
   }
 
+  // ---------- Tirs au but : BUT / Manqué pour chaque équipe, résumé des tirs ----------
+  function rendreTab() {
+    const tab = etat.phase === 'tab';
+    $('tab-resume').hidden = !etat.tab;
+    document.querySelectorAll('[data-manque]').forEach((b) => (b.hidden = !tab));
+    document.querySelectorAll('.ligne-buts').forEach((l) => l.classList.toggle('tab', tab));
+    $('aide-buts').textContent = tab
+      ? 'Tirs au but : BUT ou Manqué pour chaque tir, chaque équipe à son tour.'
+      : 'Le bouton BUT ajoute le point et lance l’animation sur l’écran.';
+    $('corrige-tab').hidden = !etat.tab;
+    $('corrige-match').hidden = tab;
+    if (!etat.tab) return;
+    const st = Commun.scoreTab(etat);
+    for (const eq of ['dom', 'ext']) {
+      const tirs = etat.tab[eq];
+      $('ronds-' + eq).textContent = [0, 1, 2, 3, 4].map((i) => (tirs[i] === true ? '🟢' : tirs[i] === false ? '🔴' : '⚪')).join('') +
+        (tirs.length > 5 ? `  +${tirs.length - 5}` : '');
+      $('tab-' + eq).textContent = st[eq];
+    }
+  }
+
   // ---------- Boutons ----------
-  document.querySelectorAll('[data-but]').forEach((b) => (b.onclick = () => agir('but', { equipe: b.dataset.but })));
+  document.querySelectorAll('[data-but]').forEach((b) => {
+    b.onclick = () => (etat && etat.phase === 'tab'
+      ? agir('tab', { equipe: b.dataset.but, reussi: true })
+      : agir('but', { equipe: b.dataset.but }));
+  });
+  document.querySelectorAll('[data-manque]').forEach((b) => (b.onclick = () => agir('tab', { equipe: b.dataset.manque, reussi: false })));
+  document.querySelectorAll('[data-tab-retirer]').forEach((b) => {
+    b.onclick = () => agir('tab_corriger', { equipe: b.dataset.tabRetirer, mode: 'retirer' }, 'Retirer le dernier tir au but de cette équipe ?');
+  });
+  document.querySelectorAll('[data-tab-inverser]').forEach((b) => {
+    b.onclick = () => agir('tab_corriger', { equipe: b.dataset.tabInverser, mode: 'inverser' });
+  });
   document.querySelectorAll('[data-score]').forEach((b) => {
     b.onclick = () => agir('score', { equipe: b.dataset.score, delta: Number(b.dataset.delta) });
   });
