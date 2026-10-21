@@ -200,18 +200,16 @@
     champ.type = champ.type === 'text' ? 'password' : 'text';
     $('afficher-arret').textContent = champ.type === 'text' ? 'Masquer' : 'Afficher';
   };
-  $('form-arret').onsubmit = async (ev) => {
-    ev.preventDefault();
-    const action = ev.submitter && ev.submitter.value === 'redemarrer' ? 'redemarrer' : 'eteindre';
-    const r = await Commun.poster('/api/player/arret', { code: $('code-arret').value, action });
-    if (!r.ok) {
-      $('erreur-arret').textContent = r.message || 'Impossible pour le moment.';
-      $('erreur-arret').hidden = false;
-      return;
-    }
-    $('modale-arret').classList.remove('visible');
-    toast(action === 'redemarrer' ? 'Le player redémarre dans 24 s (animation de fin, puis environ 1 minute).' : 'Le player s’éteint dans 24 s (animation de fin).');
-  };
+  Commun.brancherArret({
+    form: $('form-arret'),
+    champ: $('code-arret'),
+    erreur: $('erreur-arret'),
+    surSucces: (action) => {
+      $('modale-arret').classList.remove('visible');
+      $('voile-arret').classList.add('visible');
+      Commun.compteARebours($('titre-arret'), $('texte-arret'), action);
+    },
+  });
 
   fetch('/api/moi').then((r) => r.json()).then((m) => {
     // Bouton d'extinction : sur le player uniquement, et pas dans la régie (qui a le sien en haut).

@@ -54,11 +54,11 @@ Câble RJ45 du club ──▶ [switch 5 ports] ──▶ Novastar (player de l'�
 
 ## Animation Philibert CVS (player Raspberry)
 
-- **À l'allumage** : environ 24 secondes d'animation (logo PHILIBERT CVS, les 3 métiers, puis coordonnées et QR code
-  « carte de contact » pendant 10 s), puis le score s'affiche.
+- **À l'allumage** : environ 32 secondes d'animation (logo PHILIBERT CVS, les 3 métiers, puis coordonnées et QR code
+  « carte de contact » pendant 15 s), puis le score s'affiche.
 - **À l'extinction ou au redémarrage depuis l'app** : la même animation, puis le player s'arrête.
   (Une coupure de courant brutale ne laisse pas le temps de l'afficher.)
-- Le QR code enregistre le contact (Philibert CVS, téléphone, e-mail). Sur un écran de 288 × 96 pixels, il est au
+- Le QR code enregistre le contact : Thomas Philibert, entreprise PHILIBERT CVS, téléphone et e-mail. Sur un écran de 288 × 96 pixels, il est au
   maximum de ce qui se scanne : 2 pixels LED par case. Il faut s'approcher de l'écran avec le téléphone.
 - Logo : `public/img/philibert-cvs.svg` (complet) et `public/img/philibert-cvs-monogramme.svg` (le carré « PC »).
 

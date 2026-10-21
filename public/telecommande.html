@@ -107,11 +107,19 @@
     </div>
     <p class="erreur-texte" id="erreur-arret" hidden></p>
     <div class="boutons">
-      <button class="gros stop" type="submit" value="eteindre">⏻ Éteindre</button>
-      <button type="submit" value="redemarrer">↻ Redémarrer plutôt</button>
+      <button class="gros stop" type="button" data-arret="eteindre">⏻ Éteindre</button>
+      <button type="button" data-arret="redemarrer">↻ Redémarrer plutôt</button>
       <button type="button" class="discret court" id="annuler-arret">Annuler</button>
     </div>
   </form>
+</div>
+
+<div class="voile" id="voile-arret">
+  <div>
+    <img src="/img/logo-src.png" alt="">
+    <h1 id="titre-arret">Le player s'éteint…</h1>
+    <p id="texte-arret"></p>
+  </div>
 </div>
 
 <div class="barre-annuler"><button id="annuler" disabled>↶ Annuler</button></div>

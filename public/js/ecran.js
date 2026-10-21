@@ -198,7 +198,7 @@
   }
 
   // ---------- Animation Philibert CVS : au démarrage (?intro) et avant l'extinction ----------
-  const DUREE_INTRO = 24000;
+  const DUREE_INTRO = 32000;
   let introMinuteur = null;
   let extinctionVue = null;
   function ajusterIntro() {

@@ -64,14 +64,15 @@ let rechargement = 0; // augmenté pour demander à l'écran LED de se recharger
 // Extinction / redémarrage du player : l'écran joue l'animation de fin pendant 20 s avant l'arrêt.
 let extinction = null; // { id, action, t }
 const DEMARRAGE = Date.now(); // l'écran du player joue l'animation de démarrage juste après
-const DUREE_ANIMATION_FIN_MS = 24000;
+const DUREE_ANIMATION_FIN_MS = 32000;
 // Carte de contact Philibert CVS (QR code de l'animation de démarrage et d'extinction).
-// Volontairement courte : 37 × 37 cases, soit 2 pixels LED par case sur l'écran de 96 pixels de haut.
+// Volontairement courte : 41 × 41 cases, soit 2 pixels LED par case sur l'écran de 96 pixels de haut.
 const CONTACT_VCARD = [
   'BEGIN:VCARD',
   'VERSION:3.0',
-  'N:Philibert CVS',
-  'FN:Philibert CVS',
+  'N:Philibert;Thomas',
+  'FN:Thomas Philibert',
+  'ORG:PHILIBERT CVS',
   'TEL:+33663989686',
   'EMAIL:philibertcvs@gmail.com',
   'END:VCARD',
@@ -739,7 +740,7 @@ async function router(req, res) {
       }
       // L'écran joue l'animation de fin, puis le player s'arrête.
       extinction = { id: crypto.randomUUID(), action: commande === 'reboot' ? 'redemarrer' : 'eteindre', t: Date.now() };
-      noter('Régie', commande === 'reboot' ? 'Redémarrage du player (dans 24 s)' : 'Extinction du player (dans 24 s)');
+      noter('Régie', commande === 'reboot' ? 'Redémarrage du player (dans 32 s)' : 'Extinction du player (dans 32 s)');
       json(res, 200, { ok: true });
       setTimeout(() => {
         execFile('sudo', ['-n', '/usr/bin/systemctl', commande], (err) => {

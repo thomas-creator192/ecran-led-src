@@ -179,12 +179,12 @@ body.apercu { cursor: default; }
   opacity: 0;
   padding: 0 40px;
 }
-/* Déroulé : logo 0-5 s, les 3 métiers 5-13 s, contact 13-24 s (10 s à l'écran). */
+/* Déroulé : logo 0-5 s, métiers 1 et 2 de 5 à 10 s, métier 3 de 10 à 16 s, contact 16-32 s (≈ 15 s à l'écran). */
 .intro.actif .intro-logo { animation: pc-etape 5s 0s both; }
 .intro.actif .s1 { animation: pc-etape 2.7s 5s both; }
 .intro.actif .s2 { animation: pc-etape 2.7s 7.6s both; }
-.intro.actif .s3 { animation: pc-etape 2.7s 10.2s both; }
-.intro.actif .intro-contact { animation: pc-fin 11s 13s both; }
+.intro.actif .s3 { animation: pc-etape 5.7s 10.2s both; }
+.intro.actif .intro-contact { animation: pc-fin 16s 15.9s both; }
 @keyframes pc-etape {
   0% { opacity: 0; transform: translateY(40px) scale(.96); }
   14%, 86% { opacity: 1; transform: none; }
@@ -192,7 +192,7 @@ body.apercu { cursor: default; }
 }
 @keyframes pc-fin {
   0% { opacity: 0; transform: scale(.95); }
-  5%, 95% { opacity: 1; transform: none; }
+  4%, 96% { opacity: 1; transform: none; }
   100% { opacity: 0; }
 }
 .intro-logo { gap: 44px; }
@@ -212,10 +212,10 @@ body.apercu { cursor: default; }
 .intro-service .ajuster { font-size: 96px; font-weight: 700; color: #fff; white-space: nowrap; }
 .intro-service .pc-detail { font-size: 46px; font-weight: 400; color: #c4b5fd; }
 .s3 { gap: 6px; }
-/* QR code : 325 px dans la scène = 78 pixels LED (39 cases × 2) ; position calée sur la grille LED
-   (50 px = 12 pixels LED à gauche ; centré verticalement = 9 pixels LED en haut). */
+/* QR code : 358,33 px dans la scène = 86 pixels LED (43 cases × 2) ; position calée sur la grille LED
+   (50 px = 12 pixels LED à gauche ; centré verticalement = 5 pixels LED en haut). */
 .intro-contact { gap: 40px; justify-content: flex-start; padding-left: 50px; }
-.intro-qr { height: 325px; width: 325px; background: #fff; flex: none; }
+.intro-qr { height: 358.333px; width: 358.333px; background: #fff; flex: none; }
 .intro-coord { display: grid; gap: 10px; min-width: 0; }
 .intro-coord > div { white-space: nowrap; color: #fff; font-weight: 700; }
 .pc-contact-nom { font-size: 64px; letter-spacing: 1px; }

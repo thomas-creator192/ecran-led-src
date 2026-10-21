@@ -126,23 +126,17 @@
     champ.type = champ.type === 'text' ? 'password' : 'text';
     $('afficher-arret').textContent = champ.type === 'text' ? 'Masquer' : 'Afficher';
   };
-  $('form-arret').onsubmit = async (ev) => {
-    ev.preventDefault();
-    const action = ev.submitter && ev.submitter.value === 'redemarrer' ? 'redemarrer' : 'eteindre';
-    const r = await Commun.poster('/api/player/arret', { code: $('code-arret').value, action });
-    if (!r.ok) {
-      $('erreur-arret').textContent = r.message || 'Impossible pour le moment.';
-      $('erreur-arret').hidden = false;
-      return;
-    }
-    arretDemande = true;
-    $('modale-arret').classList.remove('visible');
-    if (action === 'redemarrer') {
-      $('titre-arret').textContent = 'Le player redémarre…';
-      $('texte-arret').textContent = 'Animation de fin pendant 24 secondes, puis redémarrage (environ une minute). Cette page se reconnectera toute seule.';
-    }
-    $('voile-arret').classList.add('visible');
-  };
+  Commun.brancherArret({
+    form: $('form-arret'),
+    champ: $('code-arret'),
+    erreur: $('erreur-arret'),
+    surSucces: (action) => {
+      arretDemande = true;
+      $('modale-arret').classList.remove('visible');
+      $('voile-arret').classList.add('visible');
+      Commun.compteARebours($('titre-arret'), $('texte-arret'), action);
+    },
+  });
 
   $('recharger').onclick = async () => {
     await Commun.poster('/api/ecran/recharger');

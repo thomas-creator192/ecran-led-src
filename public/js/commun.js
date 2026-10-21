@@ -120,5 +120,53 @@ const Commun = (() => {
     }));
   }
 
-  return { connecter, maintenant, chrono, affichageChrono, scoreTab, libellePhase, envoyer, poster, mmss, rendreJournal };
+  // Éteindre / redémarrer le player : chaque bouton porte son action (data-arret), les boutons
+  // se désactivent pendant l'envoi, puis un compte à rebours s'affiche (animation de fin, puis arrêt).
+  const DUREE_ARRET_S = 32;
+  function brancherArret({ form, champ, erreur, surSucces }) {
+    const boutons = [...form.querySelectorAll('[data-arret]')];
+    const envoyerArret = async (action) => {
+      if (!champ.value) {
+        champ.focus();
+        return;
+      }
+      boutons.forEach((b) => (b.disabled = true));
+      const texteBouton = new Map(boutons.map((b) => [b, b.textContent]));
+      const clique = boutons.find((b) => b.dataset.arret === action);
+      clique.textContent = 'Envoi…';
+      const r = await poster('/api/player/arret', { code: champ.value, action });
+      boutons.forEach((b) => {
+        b.disabled = false;
+        b.textContent = texteBouton.get(b);
+      });
+      if (!r.ok) {
+        erreur.textContent = r.message || 'Impossible pour le moment.';
+        erreur.hidden = false;
+        return;
+      }
+      surSucces(action);
+    };
+    boutons.forEach((b) => (b.onclick = () => envoyerArret(b.dataset.arret)));
+    form.onsubmit = (ev) => {
+      ev.preventDefault();
+      envoyerArret('eteindre');
+    };
+  }
+  function compteARebours(titre, texte, action) {
+    let reste = DUREE_ARRET_S;
+    const redemarrage = action === 'redemarrer';
+    titre.textContent = redemarrage ? 'Le player redémarre…' : 'Le player s’éteint…';
+    const maj = () => {
+      texte.textContent = reste > 0
+        ? `Animation de fin sur l’écran LED : ${redemarrage ? 'redémarrage' : 'extinction'} dans ${reste} s.`
+        : redemarrage
+          ? 'Redémarrage en cours (environ une minute). Cette page se reconnectera toute seule.'
+          : 'Le player s’éteint. Attends que la lumière du Raspberry passe au rouge avant de le débrancher.';
+      reste--;
+      if (reste >= -1) setTimeout(maj, 1000);
+    };
+    maj();
+  }
+
+  return { brancherArret, compteARebours, connecter, maintenant, chrono, affichageChrono, scoreTab, libellePhase, envoyer, poster, mmss, rendreJournal };
 })();
