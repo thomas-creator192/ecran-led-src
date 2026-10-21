@@ -8,10 +8,7 @@ exec 9>"/tmp/ecran-led-kiosque.lock"
 flock -n 9 || exit 0
 
 PORT=8080
-APP="$HOME/ecran-led/app"
 
-# Fond du bureau en noir : on ne voit plus le paysage du Raspberry avant l'affichage.
-pcmanfm --set-wallpaper="$APP/public/img/fond-noir.png" --wallpaper-mode=stretch >/dev/null 2>&1 || true
 URL="http://localhost:$PORT/ecran"
 PROFIL="$HOME/ecran-led/data/navigateur-ecran"
 CHROMIUM="$(command -v chromium || command -v chromium-browser)"
