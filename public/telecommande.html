@@ -77,8 +77,26 @@
   <section class="bloc pile">
     <button class="discret" id="nouveau">Nouveau match (remet à 0-0)</button>
     <button class="lien" id="changer-prenom">Changer de prénom</button>
+    <button class="bouton-eteindre" id="eteindre" hidden>⏻ Éteindre le player</button>
   </section>
 </main>
+
+<div class="voile modale" id="modale-arret">
+  <form class="fenetre" id="form-arret">
+    <h2>Éteindre le player</h2>
+    <p class="aide">L'écran LED va s'éteindre. Il faut le code administrateur.</p>
+    <div class="champ-code">
+      <input id="code-arret" type="password" autocomplete="current-password" placeholder="Code administrateur" required>
+      <button type="button" class="court" id="afficher-arret">Afficher</button>
+    </div>
+    <p class="erreur-texte" id="erreur-arret" hidden></p>
+    <div class="boutons">
+      <button class="gros stop" type="submit" value="eteindre">⏻ Éteindre</button>
+      <button type="submit" value="redemarrer">↻ Redémarrer plutôt</button>
+      <button type="button" class="discret court" id="annuler-arret">Annuler</button>
+    </div>
+  </form>
+</div>
 
 <div class="barre-annuler"><button id="annuler" disabled>↶ Annuler</button></div>
 <div id="toast"></div>

@@ -478,7 +478,7 @@ async function router(req, res) {
     if (p === '/api/flux') return flux(req, res);
     if (p === '/api/moi') {
       const s = sessionDe(req);
-      return json(res, 200, { autorise: regie || !!s, regie, prenom: s ? s.prenom : '' });
+      return json(res, 200, { autorise: regie || !!s, regie, prenom: s ? s.prenom : '', player: process.platform === 'linux' });
     }
     if (/^\/(img|js|css|vendor)\//.test(p)) return fichier(res, decodeURIComponent(p.slice(1)));
 
@@ -563,23 +563,10 @@ async function router(req, res) {
       return json(res, 200, { ok: true });
     }
 
-    // --- Réservé à la régie (PC lui-même ou administrateur connecté) ---
-    if (!regie) return json(res, 403, { ok: false });
-    if (p === '/api/admin/code') {
-      // Sur le PC lui-même, pas besoin de l'ancien code. À distance, il est redemandé.
-      if (admin.defini() && !local && !admin.verifier(d.actuel)) return json(res, 403, { ok: false, message: 'Code actuel incorrect.' });
-      try {
-        admin.definir(d.nouveau);
-      } catch (m) {
-        if (typeof m !== 'string') throw m;
-        return json(res, 400, { ok: false, message: m });
-      }
-      noter('Régie', 'Code administrateur modifié');
-      // Le nouveau code ferme toutes les sessions : celui qui vient de le changer reste connecté.
-      return json(res, 200, { ok: true }, local ? {} : { 'Set-Cookie': cookieAdmin(admin.ouvrirSession()) });
-    }
     if (p === '/api/player/arret') {
-      // Éteindre ou redémarrer le player Raspberry : le code administrateur est redemandé à chaque fois.
+      // Éteindre ou redémarrer le player Raspberry, depuis la régie ou un téléphone autorisé :
+      // le code administrateur est redemandé à chaque fois.
+      if (!autorise(req)) return json(res, 403, { ok: false, refuse: true, message: 'Accès refusé.' });
       if (process.platform !== 'linux') return json(res, 403, { ok: false, message: 'Réservé au player Raspberry.' });
       const ip = req.socket.remoteAddress;
       if (tropDEchecs(ip)) return json(res, 429, { ok: false, message: 'Trop d’essais. Réessaie dans 10 minutes.' });
@@ -606,6 +593,21 @@ async function router(req, res) {
         });
       }, 800);
       return;
+    }
+    // --- Réservé à la régie (PC lui-même ou administrateur connecté) ---
+    if (!regie) return json(res, 403, { ok: false });
+    if (p === '/api/admin/code') {
+      // Sur le PC lui-même, pas besoin de l'ancien code. À distance, il est redemandé.
+      if (admin.defini() && !local && !admin.verifier(d.actuel)) return json(res, 403, { ok: false, message: 'Code actuel incorrect.' });
+      try {
+        admin.definir(d.nouveau);
+      } catch (m) {
+        if (typeof m !== 'string') throw m;
+        return json(res, 400, { ok: false, message: m });
+      }
+      noter('Régie', 'Code administrateur modifié');
+      // Le nouveau code ferme toutes les sessions : celui qui vient de le changer reste connecté.
+      return json(res, 200, { ok: true }, local ? {} : { 'Set-Cookie': cookieAdmin(admin.ouvrirSession()) });
     }
     if (p === '/api/ecran/recharger') {
       rechargement++;

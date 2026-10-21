@@ -354,6 +354,7 @@ body.integre .barre-annuler { position: absolute; }
 .champ-code { display: flex; gap: 8px; }
 .bouton-eteindre { background: var(--rouge); color: #fff; font-weight: 700; }
 #form-arret { display: grid; gap: 12px; width: min(460px, 100%); }
+.tel #eteindre { width: 100%; margin-top: 10px; padding: 14px; }
 #form-arret > div { max-width: none; display: flex; justify-items: normal; }
 #form-arret .boutons { flex-wrap: wrap; align-items: center; margin-top: 4px; }
 #form-arret .boutons .gros { width: auto; flex: 1 1 100%; }

@@ -152,8 +152,35 @@
   };
   $('changer-prenom').onclick = demanderPrenom;
 
+  // ---------- Éteindre / redémarrer le player (code administrateur demandé) ----------
+  $('eteindre').onclick = () => {
+    $('form-arret').reset();
+    $('erreur-arret').hidden = true;
+    $('modale-arret').classList.add('visible');
+  };
+  $('annuler-arret').onclick = () => $('modale-arret').classList.remove('visible');
+  $('afficher-arret').onclick = () => {
+    const champ = $('code-arret');
+    champ.type = champ.type === 'text' ? 'password' : 'text';
+    $('afficher-arret').textContent = champ.type === 'text' ? 'Masquer' : 'Afficher';
+  };
+  $('form-arret').onsubmit = async (ev) => {
+    ev.preventDefault();
+    const action = ev.submitter && ev.submitter.value === 'redemarrer' ? 'redemarrer' : 'eteindre';
+    const r = await Commun.poster('/api/player/arret', { code: $('code-arret').value, action });
+    if (!r.ok) {
+      $('erreur-arret').textContent = r.message || 'Impossible pour le moment.';
+      $('erreur-arret').hidden = false;
+      return;
+    }
+    $('modale-arret').classList.remove('visible');
+    toast(action === 'redemarrer' ? 'Le player redémarre (environ 1 minute).' : 'Le player s’éteint.');
+  };
+
   fetch('/api/moi').then((r) => r.json()).then((m) => {
     if (!m.autorise) return $('voile-refuse').classList.add('visible');
+    // Bouton d'extinction : sur le player uniquement, et pas dans la régie (qui a le sien en haut).
+    $('eteindre').hidden = !m.player || document.body.classList.contains('integre');
     if (m.regie) return $('changer-prenom').remove(); // régie : notée « Régie » dans le journal
     if (m.prenom) return;
     // Téléphone qui a rescanné le QR code : on reprend son prénom habituel.
