@@ -12,12 +12,17 @@ const Commun = (() => {
     4: '2e mi-temps de la prolongation',
   };
 
-  function connecter(surEtat, surStatut = () => {}) {
+  // `rechargerSiMaj` : la page se recharge toute seule quand l'app a été mise à jour,
+  // pour ne jamais garder d'anciens boutons (régie et télécommande).
+  function connecter(surEtat, surStatut = () => {}, { rechargerSiMaj = true } = {}) {
+    let version = null;
     const source = new EventSource('/api/flux');
     source.onopen = () => surStatut(true);
     source.onerror = () => surStatut(false);
     source.onmessage = (ev) => {
       const m = JSON.parse(ev.data);
+      if (rechargerSiMaj && version && m.version && m.version !== version) return location.reload();
+      version = m.version || version;
       decalage = m.maintenant - Date.now();
       surEtat(m.etat, m);
     };

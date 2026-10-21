@@ -327,5 +327,5 @@ Commun.connecter((_e, m) => {
     dernier = cle;
     charger();
   }
-});
+}, undefined, { rechargerSiMaj: false }); // pas de rechargement en plein envoi de fichier
 charger();

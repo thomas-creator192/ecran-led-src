@@ -254,6 +254,6 @@
     if (el.style.transform !== transform) el.style.transform = transform;
   }
 
-  Commun.connecter(surEtat);
+  Commun.connecter(surEtat, undefined, { rechargerSiMaj: false }); // rechargement géré ci-dessus
   setInterval(rendu, 200);
 })();
