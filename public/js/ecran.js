@@ -227,13 +227,30 @@
     extinctionVue = x.id;
     if (Commun.maintenant() - x.t < DUREE_INTRO) jouerIntro(true);
   }
+  // Au démarrage du player, l'animation se joue une seule fois, dès que l'app répond
+  // (même si le navigateur plein écran a été lancé sans ?intro, ou se recharge ensuite).
+  let introLancee = false;
   if (new URLSearchParams(location.search).has('intro')) {
     history.replaceState(null, '', location.pathname + (apercu ? '?apercu=1' : ''));
+    introLancee = true;
     jouerIntro(false);
+  }
+  function introAuDemarrage(message) {
+    if (apercu || !message.player || !message.demarrage) return;
+    const cle = 'intro-' + message.demarrage;
+    let dejaVue = false;
+    try {
+      dejaVue = !!sessionStorage.getItem(cle);
+      sessionStorage.setItem(cle, '1');
+    } catch {}
+    if (dejaVue || introLancee) return;
+    introLancee = true;
+    if (Commun.maintenant() - message.demarrage < 120000) jouerIntro(false);
   }
 
   function surEtat(nouvel, message) {
     verifierRechargement(message);
+    introAuDemarrage(message);
     majExtinction(message);
     const ancien = etat;
     etat = nouvel;
