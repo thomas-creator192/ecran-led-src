@@ -61,8 +61,9 @@ const Commun = (() => {
     if (etat.phase === 'fin') return { texte: 'FIN', libelle: true, depasse: false };
     if (etat.phase === 'tab') return { texte: 'TIRS AU BUT', libelle: true, depasse: false };
     if (etat.phase === 'pause') {
-      if (etat.periode === 1) return { texte: 'MI-TEMPS', libelle: true, depasse: false };
-      // Avant chaque mi-temps de la prolongation : le temps repart de 90:00, puis de 105:00.
+      // Mi-temps du match, et mi-temps de la prolongation.
+      if (etat.periode === 1 || etat.periode === 3) return { texte: 'MI-TEMPS', libelle: true, depasse: false };
+      // Avant la prolongation : le temps est remis à 90:00.
       const suivante = bornesPeriode(etat, etat.periode + 1);
       if (suivante && etat.reglages.dureeProl) return { texte: mmss(suivante[0] * 60000), libelle: false, depasse: false };
       return { texte: 'PAUSE', libelle: true, depasse: false };

@@ -64,7 +64,7 @@ Câble RJ45 du club ──▶ [switch 5 ports] ──▶ Novastar (player de l'�
 
 - **Fin de la 2e mi-temps** : deux boutons, « Fin du match » ou « Prolongation ».
   Avec « Prolongation », l'écran affiche 90:00 ; puis « Début de la 1re mi-temps de la prolongation » (jusqu'à 105:00),
-  « Fin de la 1re mi-temps de la prolongation » (l'écran affiche 105:00), « Début de la 2e mi-temps de la prolongation » (jusqu'à 120:00).
+  « Fin de la 1re mi-temps de la prolongation » (l'écran affiche MI-TEMPS), « Début de la 2e mi-temps de la prolongation » (jusqu'à 120:00).
   Le chrono passe en rouge au-delà de 105:00 et de 120:00.
 - **Fin de la prolongation** : « Fin du match » ou « Tirs au but ».
 - **Tirs au but** : l'écran affiche une ligne par équipe, 5 ronds (vert = marqué, rouge = manqué) et le score des tirs.
