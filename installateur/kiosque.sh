@@ -18,6 +18,8 @@ for _ in $(seq 1 120); do
   sleep 1
 done
 
+# Premier lancement après l'allumage : l'écran joue d'abord l'animation Philibert CVS.
+CIBLE="$URL?intro=1"
 while true; do
   # Après une coupure de courant : pas de verrou orphelin ni de bandeau « restaurer les pages ».
   rm -f "$PROFIL/SingletonLock" "$PROFIL/SingletonSocket" "$PROFIL/SingletonCookie"
@@ -35,6 +37,7 @@ while true; do
     --autoplay-policy=no-user-gesture-required \
     --check-for-update-interval=31536000 \
     --user-data-dir="$PROFIL" \
-    "$URL"
+    "$CIBLE"
+  CIBLE="$URL" # après un plantage du navigateur : directement le score
   sleep 3
 done

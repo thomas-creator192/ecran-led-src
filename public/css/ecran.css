@@ -158,6 +158,67 @@ body.apercu { cursor: default; }
 .vainqueur-equipe { font-size: 96px; line-height: 1; letter-spacing: 4px; white-space: nowrap; }
 .vainqueur-texte { font-size: 150px; line-height: 1; white-space: nowrap; animation: flash .5s steps(1) .8s 12; }
 
+/* ---------- Animation Philibert CVS (démarrage / extinction, 20 s) ---------- */
+.intro {
+  position: absolute;
+  inset: 0;
+  display: none;
+  z-index: 50;
+  background: radial-gradient(circle at 20% 30%, #1e1b4b 0%, #05060d 65%);
+  font-family: Arial, Helvetica, sans-serif;
+  font-variation-settings: normal;
+  overflow: hidden;
+}
+.intro.actif { display: block; }
+.intro-etape {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  padding: 0 40px;
+}
+/* Déroulé : logo 0-5 s, les 3 métiers 5-13 s, contact 13-20 s. */
+.intro.actif .intro-logo { animation: pc-etape 5s 0s both; }
+.intro.actif .s1 { animation: pc-etape 2.7s 5s both; }
+.intro.actif .s2 { animation: pc-etape 2.7s 7.6s both; }
+.intro.actif .s3 { animation: pc-etape 2.7s 10.2s both; }
+.intro.actif .intro-contact { animation: pc-fin 7s 13s both; }
+@keyframes pc-etape {
+  0% { opacity: 0; transform: translateY(40px) scale(.96); }
+  14%, 86% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-30px); }
+}
+@keyframes pc-fin {
+  0% { opacity: 0; transform: scale(.95); }
+  12%, 92% { opacity: 1; transform: none; }
+  100% { opacity: 0; }
+}
+.intro-logo { gap: 44px; }
+.pc-monogramme { height: 260px; animation: pc-tourne 1.4s cubic-bezier(.2, .9, .3, 1.2) both; }
+@keyframes pc-tourne { from { transform: rotate(-90deg) scale(.3); opacity: 0; } }
+.pc-nom { font-size: 150px; font-weight: 700; line-height: .95; color: #fff; letter-spacing: -2px; }
+.pc-cvs { font-size: 72px; font-weight: 700; letter-spacing: 34px; color: #22d3ee; }
+.intro-service { flex-direction: column; gap: 14px; text-align: center; }
+.pc-num {
+  font-size: 56px;
+  font-weight: 700;
+  color: #22d3ee;
+  letter-spacing: 6px;
+}
+.intro .ajuster { display: block; max-width: none; }
+.intro-service .ajuster { font-size: 96px; font-weight: 700; color: #fff; white-space: nowrap; }
+/* QR code : 325 px dans la scène = 78 pixels LED (39 cases × 2) ; position calée sur la grille LED
+   (50 px = 12 pixels LED à gauche ; centré verticalement = 9 pixels LED en haut). */
+.intro-contact { gap: 40px; justify-content: flex-start; padding-left: 50px; }
+.intro-qr { height: 325px; width: 325px; background: #fff; flex: none; }
+.intro-coord { display: grid; gap: 10px; min-width: 0; }
+.intro-coord > div { white-space: nowrap; color: #fff; font-weight: 700; }
+.pc-contact-nom { font-size: 64px; color: #22d3ee !important; }
+.intro-coord .ajuster { font-size: 58px; }
+.intro-coord .intro-scan { font-size: 36px; color: #c4b5fd; font-weight: 400; }
+
 /* ---------- Logo du club ---------- */
 #vue-logo {
   grid-template-columns: auto auto;

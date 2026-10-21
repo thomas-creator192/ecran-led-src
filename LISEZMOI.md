@@ -52,6 +52,16 @@ Câble RJ45 du club ──▶ [switch 5 ports] ──▶ Novastar (player de l'�
   S'il a été éteint par l'app sans que le courant soit coupé, il reste éteint : appuyer sur son bouton, ou couper puis remettre le courant.
 - Pour réinstaller (en gardant score, réglages, spots et code) : relancer la même commande dans le Terminal.
 
+## Animation Philibert CVS (player Raspberry)
+
+- **À l'allumage** : 20 secondes d'animation (logo Philibert CVS, les 3 métiers, coordonnées et QR code
+  « carte de contact »), puis le score s'affiche.
+- **À l'extinction ou au redémarrage depuis l'app** : la même animation pendant 20 secondes, puis le player s'arrête.
+  (Une coupure de courant brutale ne laisse pas le temps de l'afficher.)
+- Le QR code enregistre le contact (Philibert CVS, téléphone, e-mail). Sur un écran de 288 × 96 pixels, il est au
+  maximum de ce qui se scanne : 2 pixels LED par case. Il faut s'approcher de l'écran avec le téléphone.
+- Logo : `public/img/philibert-cvs.svg` (complet) et `public/img/philibert-cvs-monogramme.svg` (le carré « PC »).
+
 ## Le jour du match
 
 1. Double-clic sur l'icône **« Écran LED SRC »** : la régie s'ouvre.

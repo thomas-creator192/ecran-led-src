@@ -139,7 +139,7 @@
     $('modale-arret').classList.remove('visible');
     if (action === 'redemarrer') {
       $('titre-arret').textContent = 'Le player redémarre…';
-      $('texte-arret').textContent = 'Environ une minute. Cette page se reconnectera toute seule.';
+      $('texte-arret').textContent = 'Animation de fin pendant 20 secondes, puis redémarrage (environ une minute). Cette page se reconnectera toute seule.';
     }
     $('voile-arret').classList.add('visible');
   };

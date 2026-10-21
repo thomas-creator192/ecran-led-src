@@ -210,7 +210,7 @@
       return;
     }
     $('modale-arret').classList.remove('visible');
-    toast(action === 'redemarrer' ? 'Le player redémarre (environ 1 minute).' : 'Le player s’éteint.');
+    toast(action === 'redemarrer' ? 'Le player redémarre dans 20 s (animation de fin, puis environ 1 minute).' : 'Le player s’éteint dans 20 s (animation de fin).');
   };
 
   fetch('/api/moi').then((r) => r.json()).then((m) => {

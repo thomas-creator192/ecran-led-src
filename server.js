@@ -61,6 +61,20 @@ let historique = []; // pour « Annuler » : [{ match, libelle }]
 const dernierBut = { dom: 0, ext: 0 };
 const clients = new Set(); // { res, complet }
 let rechargement = 0; // augmenté pour demander à l'écran LED de se recharger
+// Extinction / redémarrage du player : l'écran joue l'animation de fin pendant 20 s avant l'arrêt.
+let extinction = null; // { id, action, t }
+const DUREE_ANIMATION_FIN_MS = 20000;
+// Carte de contact Philibert CVS (QR code de l'animation de démarrage et d'extinction).
+// Volontairement courte : 37 × 37 cases, soit 2 pixels LED par case sur l'écran de 96 pixels de haut.
+const CONTACT_VCARD = [
+  'BEGIN:VCARD',
+  'VERSION:3.0',
+  'N:Philibert CVS',
+  'FN:Philibert CVS',
+  'TEL:+33663989686',
+  'EMAIL:philibertcvs@gmail.com',
+  'END:VCARD',
+].join('\n');
 // Téléphones autorisés : une session par appareil, révocable depuis la régie.
 const sessions = new Map(); // id → { id, prenom, cree, vu }
 const SESSION_INACTIVE_MS = 24 * 3600 * 1000;
@@ -351,6 +365,7 @@ function message(complet) {
     spots: spots.publique(),
     version: VERSION, // l'écran LED se recharge tout seul après une mise à jour
     rechargement,
+    extinction,
   });
 }
 function diffuser() {
@@ -573,6 +588,11 @@ async function router(req, res) {
       });
     }
     if (p === '/api/flux') return flux(req, res);
+    if (p === '/api/contact.svg') {
+      const svg = await QRCode.toString(CONTACT_VCARD, { type: 'svg', errorCorrectionLevel: 'L', margin: 1 });
+      res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=86400' });
+      return res.end(svg);
+    }
     if (p === '/api/moi') {
       const s = sessionDe(req);
       return json(res, 200, {
@@ -711,13 +731,18 @@ async function router(req, res) {
           message: 'Le player n’a pas encore cette autorisation : relance une fois la commande d’installation sur le Raspberry.',
         });
       }
-      noter('Régie', commande === 'reboot' ? 'Redémarrage du player' : 'Extinction du player');
+      if (extinction && Date.now() - extinction.t < DUREE_ANIMATION_FIN_MS + 5000) {
+        return json(res, 409, { ok: false, message: 'Le player est déjà en train de s’éteindre.' });
+      }
+      // L'écran joue l'animation de fin, puis le player s'arrête.
+      extinction = { id: crypto.randomUUID(), action: commande === 'reboot' ? 'redemarrer' : 'eteindre', t: Date.now() };
+      noter('Régie', commande === 'reboot' ? 'Redémarrage du player (dans 20 s)' : 'Extinction du player (dans 20 s)');
       json(res, 200, { ok: true });
       setTimeout(() => {
         execFile('sudo', ['-n', '/usr/bin/systemctl', commande], (err) => {
           if (err) console.error('Arrêt du player impossible :', err.message);
         });
-      }, 800);
+      }, DUREE_ANIMATION_FIN_MS);
       return;
     }
     // --- Réservé à la régie (PC lui-même ou administrateur connecté) ---

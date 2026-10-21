@@ -197,8 +197,44 @@
     }
   }
 
+  // ---------- Animation Philibert CVS : au démarrage (?intro) et avant l'extinction ----------
+  const DUREE_INTRO = 20000;
+  let introMinuteur = null;
+  let extinctionVue = null;
+  function ajusterIntro() {
+    // Chaque texte doit tenir sur une ligne dans la largeur disponible.
+    for (const t of document.querySelectorAll('#intro .ajuster')) {
+      t.style.fontSize = '';
+      const parent = getComputedStyle(t.parentElement);
+      const dispo = t.parentElement.clientWidth - parseFloat(parent.paddingLeft) - parseFloat(parent.paddingRight);
+      const largeur = t.scrollWidth;
+      if (largeur > dispo) t.style.fontSize = `${parseFloat(getComputedStyle(t).fontSize) * dispo / largeur}px`;
+    }
+  }
+  function jouerIntro(sortie) {
+    const el = $('intro');
+    el.classList.remove('actif');
+    void el.offsetWidth; // relance les animations CSS
+    el.classList.add('actif');
+    ajusterIntro();
+    clearTimeout(introMinuteur);
+    // Au démarrage, l'app prend la suite ; à l'extinction, l'écran reste noir.
+    if (!sortie) introMinuteur = setTimeout(() => el.classList.remove('actif'), DUREE_INTRO);
+  }
+  function majExtinction(message) {
+    const x = message.extinction;
+    if (!x || x.id === extinctionVue) return;
+    extinctionVue = x.id;
+    if (Commun.maintenant() - x.t < DUREE_INTRO) jouerIntro(true);
+  }
+  if (new URLSearchParams(location.search).has('intro')) {
+    history.replaceState(null, '', location.pathname + (apercu ? '?apercu=1' : ''));
+    jouerIntro(false);
+  }
+
   function surEtat(nouvel, message) {
     verifierRechargement(message);
+    majExtinction(message);
     const ancien = etat;
     etat = nouvel;
     placer();
