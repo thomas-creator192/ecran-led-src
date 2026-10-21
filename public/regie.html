@@ -50,7 +50,7 @@
     <section class="bloc">
       <h2>Télécommande des bénévoles</h2>
       <div class="qr"><img id="qr" alt="QR code de la télécommande"></div>
-      <p class="aide">Téléphone connecté au Wi-Fi du stade → appareil photo → scanner, puis prénom et code bénévoles (à chaque fois).</p>
+      <p class="aide">Téléphone connecté au Wi-Fi du stade → appareil photo → scanner, puis prénom et code administrateur (à chaque fois).</p>
       <div class="url" id="url"></div>
       <label class="aide" id="choix-reseau" hidden>Réseau utilisé par les téléphones :
         <select id="reseau"></select>
@@ -92,17 +92,6 @@
       <div class="boutons"><button class="primaire" type="submit">Enregistrer</button></div>
     </form>
 
-    <form class="bloc" id="form-benevoles">
-      <h2>Code bénévoles</h2>
-      <p class="aide" id="etat-benevoles"></p>
-      <div class="champs">
-        <label>Nouveau code <input name="nouveau" type="password" autocomplete="new-password" minlength="4" required></label>
-        <label>Confirmation <input name="confirmation" type="password" autocomplete="new-password" minlength="4" required></label>
-      </div>
-      <p class="aide">4 caractères minimum. Changer ce code déconnecte tous les téléphones.</p>
-      <div class="boutons"><button class="primaire" type="submit">Enregistrer le code bénévoles</button></div>
-    </form>
-
     <form class="bloc" id="form-admin">
       <h2>Accès administrateur</h2>
       <p class="aide" id="etat-admin"></p>
@@ -111,7 +100,8 @@
         <label>Nouveau code <input name="nouveau" type="password" autocomplete="new-password" minlength="6" required></label>
         <label>Confirmation <input name="confirmation" type="password" autocomplete="new-password" minlength="6" required></label>
       </div>
-      <p class="aide">6 caractères minimum. Changer le code déconnecte les autres administrateurs.</p>
+      <p class="aide">6 caractères minimum. C'est aussi le code que tapent les bénévoles après le scan du QR code.
+        Le changer déconnecte les autres administrateurs.</p>
       <div class="boutons"><button class="primaire" type="submit">Enregistrer le code</button></div>
     </form>
   </div>

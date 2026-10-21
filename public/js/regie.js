@@ -81,7 +81,6 @@
     $('eteindre').hidden = !player;
     $('deconnexion').hidden = infos.local;
     rendreAccesAdmin();
-    rendreCodeBenevoles();
     const choix = $('reseau');
     const ancien = choix.value;
     choix.replaceChildren(...infos.adresses.map((a) => new Option(`${a.nom} — ${a.adresse}`, a.adresse)));
@@ -91,26 +90,6 @@
     rendreAppareils();
     if (!player) rendreDiffusion();
   }
-
-  function rendreCodeBenevoles() {
-    const aucun = !infos.benevolesDefini && !infos.adminDefini;
-    $('etat-benevoles').textContent = infos.benevolesDefini
-      ? 'Code bénévoles à part : demandé aux bénévoles, avec leur prénom, après chaque scan du QR code.'
-      : aucun
-        ? '⚠ Aucun code défini : les téléphones ne peuvent pas se connecter. Définis un code ci-dessous.'
-        : 'Pas de code à part : les bénévoles tapent le code administrateur. Tu peux en définir un différent ci-dessous.';
-    $('etat-benevoles').classList.toggle('alerte-texte', aucun);
-  }
-  $('form-benevoles').onsubmit = async (ev) => {
-    ev.preventDefault();
-    const el = $('form-benevoles').elements;
-    if (el.nouveau.value !== el.confirmation.value) return toast('Les deux codes ne sont pas identiques.', true);
-    const r = await Commun.poster('/api/benevoles/code', { nouveau: el.nouveau.value });
-    if (!r.ok) return toast(r.message || 'Impossible d’enregistrer le code.', true);
-    $('form-benevoles').reset();
-    toast('Code bénévoles enregistré : les téléphones doivent se reconnecter.');
-    chargerInfos();
-  };
 
   function rendreAccesAdmin() {
     const ip = infos.adresses[0] && infos.adresses[0].adresse;

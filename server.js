@@ -666,7 +666,7 @@ async function router(req, res) {
       if (!invitation) return json(res, 403, { ok: false, refuse: true, message: 'Rescanne le QR code.' });
       const ip = req.socket.remoteAddress;
       if (tropDEchecs(ip)) return json(res, 429, { ok: false, message: 'Trop d’essais. Réessaie dans 10 minutes.' });
-      if (!admin.benevolesDefini() && !admin.defini()) {
+      if (!admin.defini()) {
         return json(res, 409, { ok: false, message: 'Aucun code n’est encore défini : demande au responsable de la régie.' });
       }
       const prenom = String(d.prenom || '').trim().slice(0, 20);
@@ -731,7 +731,9 @@ async function router(req, res) {
         if (typeof m !== 'string') throw m;
         return json(res, 400, { ok: false, message: m });
       }
-      noter('Régie', 'Code administrateur modifié');
+      // C'est aussi le code des bénévoles : les téléphones doivent se reconnecter avec le nouveau.
+      sessions.clear();
+      noter('Régie', 'Code administrateur modifié : téléphones déconnectés');
       // Le nouveau code ferme toutes les sessions : celui qui vient de le changer reste connecté.
       return json(res, 200, { ok: true }, local ? {} : { 'Set-Cookie': cookieAdmin(admin.ouvrirSession()) });
     }
@@ -751,18 +753,6 @@ async function router(req, res) {
     }
     if (p === '/api/reglages') {
       appliquerReglages(d);
-      return json(res, 200, { ok: true });
-    }
-    if (p === '/api/benevoles/code') {
-      // Nouveau code bénévoles : tous les téléphones sont déconnectés.
-      try {
-        admin.definirBenevoles(d.nouveau);
-      } catch (m) {
-        if (typeof m !== 'string') throw m;
-        return json(res, 400, { ok: false, message: m });
-      }
-      sessions.clear();
-      noter('Régie', 'Code bénévoles modifié : téléphones déconnectés');
       return json(res, 200, { ok: true });
     }
     if (p === '/api/nouveau-code') {

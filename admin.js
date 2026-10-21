@@ -84,8 +84,8 @@ function creer(dossierData) {
 
   // ---------- Code bénévoles ----------
   const benevolesDefini = () => !!(donnees.benevoles && donnees.benevoles.hash);
-  // Sans code bénévoles à part, les bénévoles utilisent le code administrateur.
-  const verifierBenevoles = (code) => (benevolesDefini() ? verifierHash(code, donnees.benevoles) : verifier(code));
+  // Un seul code pour tout le monde : les bénévoles tapent le code administrateur.
+  const verifierBenevoles = (code) => verifier(code);
   function definirBenevoles(code) {
     donnees.benevoles = empreinteDe(code, 4);
     sauver();
