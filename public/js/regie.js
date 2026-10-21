@@ -78,6 +78,7 @@
     $('diffusion-player').hidden = !player;
     $('aide-fenetre').hidden = player;
     $('quitter').hidden = player || !infos.local;
+    $('eteindre').hidden = !player;
     $('deconnexion').hidden = infos.local;
     rendreAccesAdmin();
     const choix = $('reseau');
@@ -111,6 +112,38 @@
     await Commun.poster('/api/admin/deconnexion');
     location.replace('/admin');
   };
+  // ---------- Éteindre / redémarrer le player (code administrateur redemandé) ----------
+  let arretDemande = false;
+  $('eteindre').onclick = () => {
+    $('form-arret').reset();
+    $('erreur-arret').hidden = true;
+    $('modale-arret').classList.add('visible');
+    $('code-arret').focus();
+  };
+  $('annuler-arret').onclick = () => $('modale-arret').classList.remove('visible');
+  $('afficher-arret').onclick = () => {
+    const champ = $('code-arret');
+    champ.type = champ.type === 'text' ? 'password' : 'text';
+    $('afficher-arret').textContent = champ.type === 'text' ? 'Masquer' : 'Afficher';
+  };
+  $('form-arret').onsubmit = async (ev) => {
+    ev.preventDefault();
+    const action = ev.submitter && ev.submitter.value === 'redemarrer' ? 'redemarrer' : 'eteindre';
+    const r = await Commun.poster('/api/player/arret', { code: $('code-arret').value, action });
+    if (!r.ok) {
+      $('erreur-arret').textContent = r.message || 'Impossible pour le moment.';
+      $('erreur-arret').hidden = false;
+      return;
+    }
+    arretDemande = true;
+    $('modale-arret').classList.remove('visible');
+    if (action === 'redemarrer') {
+      $('titre-arret').textContent = 'Le player redémarre…';
+      $('texte-arret').textContent = 'Environ une minute. Cette page se reconnectera toute seule.';
+    }
+    $('voile-arret').classList.add('visible');
+  };
+
   $('recharger').onclick = async () => {
     await Commun.poster('/api/ecran/recharger');
     toast('L’affichage de l’écran LED se recharge.');
@@ -223,6 +256,11 @@
         ? 'app en marche'
         : player ? 'player injoignable — vérifie qu’il est allumé et sur le réseau' : 'app arrêtée — relance-la depuis l’icône du bureau';
       if (!ok && quitte) $('voile-quitte').classList.add('visible');
+      // Retour du player après un redémarrage : on enlève le message.
+      if (ok && arretDemande) {
+        arretDemande = false;
+        $('voile-arret').classList.remove('visible');
+      }
     }
   );
   chargerInfos();

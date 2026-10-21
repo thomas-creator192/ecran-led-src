@@ -12,6 +12,7 @@ const systeme = require('./systeme');
 const Spots = require('./spots');
 const Admin = require('./admin');
 const maj = require('./maj');
+const { execFile } = require('child_process');
 
 const VERSION = require('./package.json').version;
 
@@ -576,6 +577,35 @@ async function router(req, res) {
       noter('Régie', 'Code administrateur modifié');
       // Le nouveau code ferme toutes les sessions : celui qui vient de le changer reste connecté.
       return json(res, 200, { ok: true }, local ? {} : { 'Set-Cookie': cookieAdmin(admin.ouvrirSession()) });
+    }
+    if (p === '/api/player/arret') {
+      // Éteindre ou redémarrer le player Raspberry : le code administrateur est redemandé à chaque fois.
+      if (process.platform !== 'linux') return json(res, 403, { ok: false, message: 'Réservé au player Raspberry.' });
+      const ip = req.socket.remoteAddress;
+      if (tropDEchecs(ip)) return json(res, 429, { ok: false, message: 'Trop d’essais. Réessaie dans 10 minutes.' });
+      if (!admin.verifier(String(d.code || ''))) {
+        noterEchec(ip);
+        return json(res, 403, { ok: false, message: 'Code incorrect.' });
+      }
+      const commande = d.action === 'redemarrer' ? 'reboot' : 'poweroff';
+      // Le player n'a le droit d'exécuter que ces deux commandes (règle posée par l'installation).
+      const permis = await new Promise((ok) => {
+        execFile('sudo', ['-n', '-l', '/usr/bin/systemctl', commande], (err) => ok(!err));
+      });
+      if (!permis) {
+        return json(res, 500, {
+          ok: false,
+          message: 'Le player n’a pas encore cette autorisation : relance une fois la commande d’installation sur le Raspberry.',
+        });
+      }
+      noter('Régie', commande === 'reboot' ? 'Redémarrage du player' : 'Extinction du player');
+      json(res, 200, { ok: true });
+      setTimeout(() => {
+        execFile('sudo', ['-n', '/usr/bin/systemctl', commande], (err) => {
+          if (err) console.error('Arrêt du player impossible :', err.message);
+        });
+      }, 800);
+      return;
     }
     if (p === '/api/ecran/recharger') {
       rechargement++;

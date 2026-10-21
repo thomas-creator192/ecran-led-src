@@ -16,6 +16,7 @@
     <p>SRC La Clayette · <span id="statut">connexion…</span> · <span id="version"></span></p>
   </div>
   <a class="bouton-lien spots-lien" href="/spots">📺 Spots annonceurs</a>
+  <button id="eteindre" class="court bouton-eteindre" hidden>⏻ Éteindre</button>
   <button id="deconnexion" class="discret court" hidden>Se déconnecter</button>
   <button id="quitter" class="discret court" hidden>Quitter l'app</button>
 </header>
@@ -133,6 +134,32 @@
     <img src="/img/logo-src.png" alt="">
     <h1>L'app est arrêtée</h1>
     <p>Tu peux fermer cette fenêtre. Pour la relancer : double-clic sur l'icône « Écran LED SRC » du bureau.</p>
+  </div>
+</div>
+
+<div class="voile modale" id="modale-arret">
+  <form class="fenetre" id="form-arret">
+    <h2>Éteindre le player</h2>
+    <p class="aide">L'écran LED va s'éteindre. Pour le rallumer : appuie sur le bouton du Raspberry,
+      ou débranche puis rebranche son alimentation.</p>
+    <div class="champ-code">
+      <input id="code-arret" type="password" autocomplete="current-password" placeholder="Code administrateur" required>
+      <button type="button" class="court" id="afficher-arret">Afficher</button>
+    </div>
+    <p class="erreur-texte" id="erreur-arret" hidden></p>
+    <div class="boutons">
+      <button class="gros stop" type="submit" value="eteindre">⏻ Éteindre</button>
+      <button type="submit" value="redemarrer">↻ Redémarrer plutôt</button>
+      <button type="button" class="discret court" id="annuler-arret">Annuler</button>
+    </div>
+  </form>
+</div>
+
+<div class="voile" id="voile-arret">
+  <div>
+    <img src="/img/logo-src.png" alt="">
+    <h1 id="titre-arret">Le player s'éteint…</h1>
+    <p id="texte-arret">Attends que la lumière du Raspberry passe au rouge avant de le débrancher.</p>
   </div>
 </div>
 

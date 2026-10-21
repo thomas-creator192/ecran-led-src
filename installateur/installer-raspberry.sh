@@ -90,6 +90,11 @@ etape "6/7 Réglages du Raspberry"
 sudo raspi-config nonint do_boot_behaviour B4   # démarrage sur le bureau, connexion automatique
 sudo raspi-config nonint do_blanking 1          # l'écran ne se met jamais en veille
 sudo raspi-config nonint do_hostname "$NOM_RESEAU" || true
+# Bouton « Éteindre » de la régie : l'app peut éteindre ou redémarrer le Raspberry, et rien d'autre.
+REGLE="/etc/sudoers.d/ecran-led"
+echo "$UTILISATEUR ALL=(root) NOPASSWD: /usr/bin/systemctl poweroff, /usr/bin/systemctl reboot" | sudo tee "$REGLE" >/dev/null
+sudo chmod 440 "$REGLE"
+sudo visudo -cf "$REGLE" >/dev/null || { sudo rm -f "$REGLE"; echo "Autorisation d'extinction non installée."; }
 
 etape "7/7 Terminé"
 IP="$(hostname -I | awk '{print $1}')"

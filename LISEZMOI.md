@@ -46,6 +46,7 @@ Câble RJ45 du club ──▶ [switch 5 ports] ──▶ Novastar (player de l'�
 - Coupure de courant : il redémarre et reprend le match là où il en était. Un petit onduleur est conseillé (protège la carte microSD).
 - Mises à jour : à chaque démarrage, et la nuit entre 3 h et 5 h (jamais pendant un match). L'affichage se recharge tout seul.
 - Régie → « ↻ Recharger l'affichage » relance l'affichage de l'écran LED à distance.
+- Régie → bouton rouge **« ⏻ Éteindre »** : éteint (ou redémarre) le Raspberry à distance, après avoir retapé le code administrateur. Pour le rallumer : appuyer sur son bouton, ou débrancher puis rebrancher l'alimentation.
 - Pour réinstaller (en gardant score, réglages, spots et code) : relancer la même commande dans le Terminal.
 
 ## Le jour du match

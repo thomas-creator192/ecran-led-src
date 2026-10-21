@@ -352,5 +352,11 @@ body.integre .barre-annuler { position: absolute; }
 .connexion-admin form[hidden], .connexion-admin [hidden] { display: none; }
 .erreur-texte { color: #ff9b91; margin: 0; }
 .champ-code { display: flex; gap: 8px; }
+.bouton-eteindre { background: var(--rouge); color: #fff; font-weight: 700; }
+#form-arret { display: grid; gap: 12px; width: min(460px, 100%); }
+#form-arret > div { max-width: none; display: flex; justify-items: normal; }
+#form-arret .boutons { flex-wrap: wrap; align-items: center; margin-top: 4px; }
+#form-arret .boutons .gros { width: auto; flex: 1 1 100%; }
+#form-arret h2 { margin: 0; }
 .champ-code input { flex: 1; min-width: 0; }
 .lien-discret { color: var(--doux); font-size: 14px; }
