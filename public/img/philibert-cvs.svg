@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 120" width="640" height="120">
   <defs>
     <linearGradient id="degrade" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#7c3aed"/>
@@ -6,8 +6,7 @@
     </linearGradient>
   </defs>
   <rect width="120" height="120" rx="28" fill="url(#degrade)"/>
-  <text x="60" y="78" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="54" fill="#ffffff" letter-spacing="-2">PC</text>
-  <rect x="34" y="88" width="52" height="5" rx="2.5" fill="#ffffff" opacity=".85"/>
-  <text x="146" y="70" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="56" fill="#0f172a">Philibert</text>
-  <text x="148" y="104" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="26" fill="#06b6d4" letter-spacing="10">CVS</text>
+  <path d="M56 22 C60 50 68 58 96 62 C68 66 60 74 56 102 C52 74 44 66 16 62 C44 58 52 50 56 22 Z" fill="#ffffff"/>
+  <path d="M92 16 C93.5 25 96 27.5 105 29 C96 30.5 93.5 33 92 42 C90.5 33 88 30.5 79 29 C88 27.5 90.5 25 92 16 Z" fill="#ffffff" opacity=".85"/>
+  <text x="146" y="80" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="56" fill="#0f172a" letter-spacing="1">PHILIBERT <tspan fill="#06b6d4">CVS</tspan></text>
 </svg>

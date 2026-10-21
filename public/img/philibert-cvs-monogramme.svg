@@ -6,6 +6,7 @@
     </linearGradient>
   </defs>
   <rect width="120" height="120" rx="28" fill="url(#degrade)"/>
-  <text x="60" y="78" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="54" fill="#ffffff" letter-spacing="-2">PC</text>
-  <rect x="34" y="88" width="52" height="5" rx="2.5" fill="#ffffff" opacity=".85"/>
+  <!-- Étoile scintillante : création, idées, IA -->
+  <path d="M56 22 C60 50 68 58 96 62 C68 66 60 74 56 102 C52 74 44 66 16 62 C44 58 52 50 56 22 Z" fill="#ffffff"/>
+  <path d="M92 16 C93.5 25 96 27.5 105 29 C96 30.5 93.5 33 92 42 C90.5 33 88 30.5 79 29 C88 27.5 90.5 25 92 16 Z" fill="#ffffff" opacity=".85"/>
 </svg>

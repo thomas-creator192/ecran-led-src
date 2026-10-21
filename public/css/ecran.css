@@ -179,12 +179,12 @@ body.apercu { cursor: default; }
   opacity: 0;
   padding: 0 40px;
 }
-/* Déroulé : logo 0-5 s, les 3 métiers 5-13 s, contact 13-20 s. */
+/* Déroulé : logo 0-5 s, les 3 métiers 5-13 s, contact 13-24 s (10 s à l'écran). */
 .intro.actif .intro-logo { animation: pc-etape 5s 0s both; }
 .intro.actif .s1 { animation: pc-etape 2.7s 5s both; }
 .intro.actif .s2 { animation: pc-etape 2.7s 7.6s both; }
 .intro.actif .s3 { animation: pc-etape 2.7s 10.2s both; }
-.intro.actif .intro-contact { animation: pc-fin 7s 13s both; }
+.intro.actif .intro-contact { animation: pc-fin 11s 13s both; }
 @keyframes pc-etape {
   0% { opacity: 0; transform: translateY(40px) scale(.96); }
   14%, 86% { opacity: 1; transform: none; }
@@ -192,14 +192,15 @@ body.apercu { cursor: default; }
 }
 @keyframes pc-fin {
   0% { opacity: 0; transform: scale(.95); }
-  12%, 92% { opacity: 1; transform: none; }
+  5%, 95% { opacity: 1; transform: none; }
   100% { opacity: 0; }
 }
 .intro-logo { gap: 44px; }
 .pc-monogramme { height: 260px; animation: pc-tourne 1.4s cubic-bezier(.2, .9, .3, 1.2) both; }
 @keyframes pc-tourne { from { transform: rotate(-90deg) scale(.3); opacity: 0; } }
-.pc-nom { font-size: 150px; font-weight: 700; line-height: .95; color: #fff; letter-spacing: -2px; }
-.pc-cvs { font-size: 72px; font-weight: 700; letter-spacing: 34px; color: #22d3ee; }
+.pc-boite { flex: 0 1 auto; min-width: 0; max-width: calc(100% - 304px); }
+.intro-logo .pc-marque { font-size: 130px; font-weight: 700; color: #fff; white-space: nowrap; letter-spacing: 2px; }
+.pc-cvs { color: #22d3ee; }
 .intro-service { flex-direction: column; gap: 14px; text-align: center; }
 .pc-num {
   font-size: 56px;
@@ -209,13 +210,15 @@ body.apercu { cursor: default; }
 }
 .intro .ajuster { display: block; max-width: none; }
 .intro-service .ajuster { font-size: 96px; font-weight: 700; color: #fff; white-space: nowrap; }
+.intro-service .pc-detail { font-size: 46px; font-weight: 400; color: #c4b5fd; }
+.s3 { gap: 6px; }
 /* QR code : 325 px dans la scène = 78 pixels LED (39 cases × 2) ; position calée sur la grille LED
    (50 px = 12 pixels LED à gauche ; centré verticalement = 9 pixels LED en haut). */
 .intro-contact { gap: 40px; justify-content: flex-start; padding-left: 50px; }
 .intro-qr { height: 325px; width: 325px; background: #fff; flex: none; }
 .intro-coord { display: grid; gap: 10px; min-width: 0; }
 .intro-coord > div { white-space: nowrap; color: #fff; font-weight: 700; }
-.pc-contact-nom { font-size: 64px; color: #22d3ee !important; }
+.pc-contact-nom { font-size: 64px; letter-spacing: 1px; }
 .intro-coord .ajuster { font-size: 58px; }
 .intro-coord .intro-scan { font-size: 36px; color: #c4b5fd; font-weight: 400; }
 
