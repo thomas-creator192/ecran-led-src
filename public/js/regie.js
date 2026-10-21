@@ -93,10 +93,13 @@
   }
 
   function rendreCodeBenevoles() {
+    const aucun = !infos.benevolesDefini && !infos.adminDefini;
     $('etat-benevoles').textContent = infos.benevolesDefini
-      ? 'Code défini : demandé aux bénévoles, avec leur prénom, après chaque scan du QR code.'
-      : '⚠ Pas encore de code : les téléphones ne peuvent pas se connecter tant qu’il n’est pas défini.';
-    $('etat-benevoles').classList.toggle('alerte-texte', !infos.benevolesDefini);
+      ? 'Code bénévoles à part : demandé aux bénévoles, avec leur prénom, après chaque scan du QR code.'
+      : aucun
+        ? '⚠ Aucun code défini : les téléphones ne peuvent pas se connecter. Définis un code ci-dessous.'
+        : 'Pas de code à part : les bénévoles tapent le code administrateur. Tu peux en définir un différent ci-dessous.';
+    $('etat-benevoles').classList.toggle('alerte-texte', aucun);
   }
   $('form-benevoles').onsubmit = async (ev) => {
     ev.preventDefault();

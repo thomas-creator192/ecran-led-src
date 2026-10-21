@@ -666,14 +666,14 @@ async function router(req, res) {
       if (!invitation) return json(res, 403, { ok: false, refuse: true, message: 'Rescanne le QR code.' });
       const ip = req.socket.remoteAddress;
       if (tropDEchecs(ip)) return json(res, 429, { ok: false, message: 'Trop d’essais. Réessaie dans 10 minutes.' });
-      if (!admin.benevolesDefini()) {
-        return json(res, 409, { ok: false, message: 'Le code bénévoles n’est pas encore défini : demande au responsable de la régie.' });
+      if (!admin.benevolesDefini() && !admin.defini()) {
+        return json(res, 409, { ok: false, message: 'Aucun code n’est encore défini : demande au responsable de la régie.' });
       }
       const prenom = String(d.prenom || '').trim().slice(0, 20);
       if (!prenom) return json(res, 400, { ok: false, message: 'Indique ton prénom.' });
       if (!admin.verifierBenevoles(String(d.code || ''))) {
         noterEchec(ip);
-        return json(res, 403, { ok: false, message: 'Code bénévoles incorrect.' });
+        return json(res, 403, { ok: false, message: 'Code incorrect.' });
       }
       invitations.delete(invitation);
       const s = { id: crypto.randomBytes(24).toString('base64url'), prenom, cree: Date.now(), vu: Date.now() };
