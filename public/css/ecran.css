@@ -151,8 +151,12 @@ body.apercu { cursor: default; }
 .vainqueur .but-fond { animation-duration: 8s, 8s; }
 .vainqueur .but-logo { animation-duration: 8s; }
 .vainqueur .but-textes { animation-duration: 8s; }
-.vainqueur-equipe { font-size: 110px; line-height: .9; letter-spacing: 4px; }
-.vainqueur-texte { font-size: 170px; line-height: .9; animation: flash .5s steps(1) .8s 12; }
+.vainqueur { gap: 40px; padding: 0 40px; }
+.vainqueur .but-logo { height: 290px; flex: none; }
+.vainqueur .but-textes { min-width: 0; }
+/* Une seule ligne chacun ; ecran.js réduit la taille si le texte dépasse la largeur disponible. */
+.vainqueur-equipe { font-size: 96px; line-height: 1; letter-spacing: 4px; white-space: nowrap; }
+.vainqueur-texte { font-size: 150px; line-height: 1; white-space: nowrap; animation: flash .5s steps(1) .8s 12; }
 
 /* ---------- Logo du club ---------- */
 #vue-logo {

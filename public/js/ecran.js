@@ -150,9 +150,21 @@
     el.classList.toggle('ext', v.equipe === 'ext');
     $('vainqueur-equipe').textContent = v.equipe === 'ext' ? etat.reglages.nomExt : etat.reglages.nomDom;
     el.classList.add('actif');
+    ajusterVainqueur();
     vainqueurAnime = v.id;
     clearTimeout(finVainqueur);
     finVainqueur = setTimeout(arreterVainqueur, DUREE_VAINQUEUR);
+  }
+  // « VAINQUEUR ! » doit tenir sur une ligne, à côté du logo (SRC) ou seul (visiteur).
+  function ajusterVainqueur() {
+    const el = $('vainqueur');
+    const logo = el.querySelector('.but-logo');
+    const dispo = 1200 - 80 - (el.classList.contains('ext') ? 0 : logo.offsetWidth + 40);
+    for (const t of el.querySelectorAll('.vainqueur-equipe, .vainqueur-texte')) {
+      t.style.fontSize = '';
+      const largeur = t.scrollWidth;
+      if (largeur > dispo) t.style.fontSize = `${parseFloat(getComputedStyle(t).fontSize) * dispo / largeur}px`;
+    }
   }
   function majVainqueur() {
     const v = etat.vainqueur;
