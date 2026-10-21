@@ -64,6 +64,10 @@ let rechargement = 0; // augmenté pour demander à l'écran LED de se recharger
 // Téléphones autorisés : une session par appareil, révocable depuis la régie.
 const sessions = new Map(); // id → { id, prenom, cree, vu }
 const SESSION_INACTIVE_MS = 24 * 3600 * 1000;
+const SESSION_MAX_MS = 12 * 3600 * 1000; // un accès bénévole ne dure jamais plus de 12 h
+// Après le scan du QR code : 10 minutes pour taper son prénom et le code bénévoles.
+const invitations = new Map(); // id → expiration
+const INVITATION_MS = 10 * 60 * 1000;
 
 function nouveauCode() {
   return crypto.randomBytes(8).toString('hex');
@@ -378,13 +382,23 @@ function sessionDe(req) {
   const id = cookies(req).session;
   const s = id && sessions.get(id);
   if (!s) return null;
-  if (Date.now() - s.vu > SESSION_INACTIVE_MS) {
+  if (Date.now() - s.vu > SESSION_INACTIVE_MS || Date.now() - s.cree > SESSION_MAX_MS) {
     sessions.delete(id);
     sauver();
     return null;
   }
   s.vu = Date.now();
   return s;
+}
+function invitationDe(req) {
+  const id = cookies(req).invitation;
+  const fin = id && invitations.get(id);
+  if (!fin) return null;
+  if (Date.now() > fin) {
+    invitations.delete(id);
+    return null;
+  }
+  return id;
 }
 function estAdmin(req) {
   return estLocal(req) || !!admin.session(cookies(req).admin);
@@ -545,17 +559,30 @@ async function router(req, res) {
         noterEchec(ip);
         return rediriger(res, '/telecommande?refuse=1');
       }
-      const s = { id: crypto.randomBytes(24).toString('base64url'), prenom: '', cree: Date.now(), vu: Date.now() };
-      sessions.set(s.id, s);
-      sauver();
+      // Chaque scan repart de zéro : l'ancien accès de ce téléphone est fermé, et il faudra
+      // retaper son prénom et le code bénévoles.
+      const ancien = cookies(req).session;
+      if (ancien && sessions.delete(ancien)) sauver();
+      const invitation = crypto.randomBytes(24).toString('base64url');
+      invitations.set(invitation, Date.now() + INVITATION_MS);
       return rediriger(res, '/telecommande', {
-        'Set-Cookie': `session=${s.id}; Path=/; Max-Age=${7 * 86400}; SameSite=Lax; HttpOnly`,
+        'Set-Cookie': [
+          `invitation=${invitation}; Path=/; Max-Age=${INVITATION_MS / 1000}; SameSite=Lax; HttpOnly`,
+          'session=; Path=/; Max-Age=0; SameSite=Lax; HttpOnly',
+        ],
       });
     }
     if (p === '/api/flux') return flux(req, res);
     if (p === '/api/moi') {
       const s = sessionDe(req);
-      return json(res, 200, { autorise: regie || !!s, regie, prenom: s ? s.prenom : '', player: process.platform === 'linux' });
+      return json(res, 200, {
+        autorise: regie || !!s,
+        regie,
+        prenom: s ? s.prenom : '',
+        invitation: !!invitationDe(req),
+        codeBenevolesDefini: admin.benevolesDefini(),
+        player: process.platform === 'linux',
+      });
     }
     if (/^\/(img|js|css|vendor)\//.test(p)) return fichier(res, decodeURIComponent(p.slice(1)));
 
@@ -569,6 +596,7 @@ async function router(req, res) {
         plateforme: process.platform,
         local,
         adminDefini: admin.defini(),
+        benevolesDefini: admin.benevolesDefini(),
         nomReseau: `${os.hostname().toLowerCase()}.local`,
         adresses: adresses(),
         port: PORT,
@@ -632,12 +660,33 @@ async function router(req, res) {
       }
       return json(res, 200, { ok: true });
     }
-    if (p === '/api/prenom') {
-      const s = sessionDe(req);
-      if (!s) return json(res, 403, { ok: false, refuse: !local });
-      s.prenom = String(d.prenom || '').trim().slice(0, 20);
+    if (p === '/api/benevole/connexion') {
+      // Après le scan du QR code : prénom + code bénévoles, à chaque fois.
+      const invitation = invitationDe(req);
+      if (!invitation) return json(res, 403, { ok: false, refuse: true, message: 'Rescanne le QR code.' });
+      const ip = req.socket.remoteAddress;
+      if (tropDEchecs(ip)) return json(res, 429, { ok: false, message: 'Trop d’essais. Réessaie dans 10 minutes.' });
+      if (!admin.benevolesDefini()) {
+        return json(res, 409, { ok: false, message: 'Le code bénévoles n’est pas encore défini : demande au responsable de la régie.' });
+      }
+      const prenom = String(d.prenom || '').trim().slice(0, 20);
+      if (!prenom) return json(res, 400, { ok: false, message: 'Indique ton prénom.' });
+      if (!admin.verifierBenevoles(String(d.code || ''))) {
+        noterEchec(ip);
+        return json(res, 403, { ok: false, message: 'Code bénévoles incorrect.' });
+      }
+      invitations.delete(invitation);
+      const s = { id: crypto.randomBytes(24).toString('base64url'), prenom, cree: Date.now(), vu: Date.now() };
+      sessions.set(s.id, s);
       sauver();
-      return json(res, 200, { ok: true });
+      noter(prenom, 'Connexion à la télécommande');
+      // Cookie sans durée : il disparaît à la fermeture du navigateur.
+      return json(res, 200, { ok: true }, {
+        'Set-Cookie': [
+          `session=${s.id}; Path=/; SameSite=Lax; HttpOnly`,
+          'invitation=; Path=/; Max-Age=0; SameSite=Lax; HttpOnly',
+        ],
+      });
     }
 
     if (p === '/api/player/arret') {
@@ -702,6 +751,18 @@ async function router(req, res) {
     }
     if (p === '/api/reglages') {
       appliquerReglages(d);
+      return json(res, 200, { ok: true });
+    }
+    if (p === '/api/benevoles/code') {
+      // Nouveau code bénévoles : tous les téléphones sont déconnectés.
+      try {
+        admin.definirBenevoles(d.nouveau);
+      } catch (m) {
+        if (typeof m !== 'string') throw m;
+        return json(res, 400, { ok: false, message: m });
+      }
+      sessions.clear();
+      noter('Régie', 'Code bénévoles modifié : téléphones déconnectés');
       return json(res, 200, { ok: true });
     }
     if (p === '/api/nouveau-code') {

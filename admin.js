@@ -1,7 +1,9 @@
 'use strict';
-// Accès administrateur : la régie et les spots depuis n'importe quel appareil du réseau, avec un code.
-// Indispensable sur le player Raspberry, qui n'a ni écran ni clavier pour la régie.
-// Le code n'est jamais stocké en clair (scrypt + sel) ; chaque connexion ouvre une session révocable.
+// Codes d'accès, jamais stockés en clair (scrypt + sel) :
+// - le code administrateur : la régie et les spots depuis n'importe quel appareil du réseau
+//   (indispensable sur le player Raspberry, qui n'a ni écran ni clavier pour la régie) ;
+//   chaque connexion ouvre une session révocable ;
+// - le code bénévoles : demandé avec le prénom après chaque scan du QR code (télécommande seulement).
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -11,39 +13,48 @@ const SESSION_INACTIVE_MS = 7 * 24 * 3600 * 1000;
 function hacher(code, sel) {
   return crypto.scryptSync(String(code), sel, 32).toString('hex');
 }
+function verifierHash(code, empreinte) {
+  if (!empreinte || !empreinte.hash || typeof code !== 'string' || !code) return false;
+  const essai = Buffer.from(hacher(code, empreinte.sel), 'hex');
+  return crypto.timingSafeEqual(essai, Buffer.from(empreinte.hash, 'hex'));
+}
+function empreinteDe(code, min) {
+  code = String(code || '');
+  if (code.length < min) throw `Le code doit faire au moins ${min} caractères.`;
+  if (code.length > 100) throw 'Code trop long.';
+  const sel = crypto.randomBytes(16).toString('hex');
+  return { sel, hash: hacher(code, sel) };
+}
 
 function creer(dossierData) {
   const fichier = path.join(dossierData, 'admin.json');
-  let donnees = { sel: null, hash: null, sessions: [] };
+  let donnees = { sel: null, hash: null, benevoles: null, sessions: [] };
   try {
     donnees = { ...donnees, ...JSON.parse(fs.readFileSync(fichier, 'utf8')) };
   } catch {
-    // pas encore de code administrateur
+    // pas encore de code
   }
   const sessions = new Map((donnees.sessions || []).map((s) => [s.id, s]));
 
   function sauver() {
     fs.mkdirSync(dossierData, { recursive: true });
     const tmp = fichier + '.tmp';
-    fs.writeFileSync(tmp, JSON.stringify({ sel: donnees.sel, hash: donnees.hash, sessions: [...sessions.values()] }));
+    fs.writeFileSync(tmp, JSON.stringify({
+      sel: donnees.sel,
+      hash: donnees.hash,
+      benevoles: donnees.benevoles,
+      sessions: [...sessions.values()],
+    }));
     fs.renameSync(tmp, fichier);
   }
 
+  // ---------- Code administrateur ----------
   const defini = () => !!donnees.hash;
-
-  function verifier(code) {
-    if (!defini() || typeof code !== 'string' || !code) return false;
-    const essai = Buffer.from(hacher(code, donnees.sel), 'hex');
-    return crypto.timingSafeEqual(essai, Buffer.from(donnees.hash, 'hex'));
-  }
+  const verifier = (code) => verifierHash(code, donnees);
 
   // Nouveau code : toutes les sessions administrateur existantes sont fermées.
   function definir(code) {
-    code = String(code || '');
-    if (code.length < 6) throw 'Le code doit faire au moins 6 caractères.';
-    if (code.length > 100) throw 'Code trop long.';
-    donnees.sel = crypto.randomBytes(16).toString('hex');
-    donnees.hash = hacher(code, donnees.sel);
+    Object.assign(donnees, empreinteDe(code, 6));
     sessions.clear();
     sauver();
   }
@@ -71,7 +82,15 @@ function creer(dossierData) {
     if (sessions.delete(id)) sauver();
   }
 
-  return { defini, verifier, definir, ouvrirSession, session, fermer };
+  // ---------- Code bénévoles ----------
+  const benevolesDefini = () => !!(donnees.benevoles && donnees.benevoles.hash);
+  const verifierBenevoles = (code) => verifierHash(code, donnees.benevoles);
+  function definirBenevoles(code) {
+    donnees.benevoles = empreinteDe(code, 4);
+    sauver();
+  }
+
+  return { defini, verifier, definir, ouvrirSession, session, fermer, benevolesDefini, verifierBenevoles, definirBenevoles };
 }
 
 module.exports = { creer };

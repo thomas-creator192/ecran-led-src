@@ -93,7 +93,6 @@
 
   <section class="bloc pile">
     <button class="discret" id="nouveau">Nouveau match (remet à 0-0)</button>
-    <button class="lien" id="changer-prenom">Changer de prénom</button>
     <button class="bouton-eteindre" id="eteindre" hidden>⏻ Éteindre le player</button>
   </section>
 </main>
@@ -124,7 +123,12 @@
       <img src="/img/logo-src.png" alt="">
       <h1>Télécommande de l'écran</h1>
       <p>Ton prénom apparaîtra dans le journal des actions.</p>
-      <input id="prenom" maxlength="20" autocomplete="given-name" placeholder="Ton prénom" required>
+      <input id="prenom" maxlength="20" autocomplete="off" placeholder="Ton prénom" required>
+      <div class="champ-code">
+        <input id="code-benevoles" type="password" autocomplete="off" placeholder="Code bénévoles" required>
+        <button type="button" class="court" id="afficher-benevoles">Afficher</button>
+      </div>
+      <p class="erreur-texte" id="erreur-prenom" hidden></p>
       <button class="gros go" type="submit">C'est parti</button>
     </div>
   </form>

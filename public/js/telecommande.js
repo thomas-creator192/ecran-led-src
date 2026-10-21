@@ -16,9 +16,6 @@
     clearTimeout(minuteurToast);
     minuteurToast = setTimeout(() => t.classList.remove('visible'), erreur ? 3500 : 1800);
   }
-  function lirePrenom() {
-    try { return localStorage.getItem('prenom') || ''; } catch { return ''; }
-  }
 
   async function agir(type, donnees = {}, confirmation = null) {
     if (confirmation && !confirm(confirmation)) return;
@@ -171,24 +168,25 @@
   $('annuler').onclick = () => agir('annuler');
   $('nouveau').onclick = () => agir('nouveau_match', attendu(), 'Remettre le score à 0-0 et le chrono à zéro ?');
 
-  // ---------- Prénom et accès ----------
-  function demanderPrenom() {
-    $('prenom').value = lirePrenom();
-    $('voile-prenom').classList.add('visible');
-  }
-  // Le prénom est enregistré par le serveur dans la session de ce téléphone
-  // (c'est lui qui l'écrit dans le journal, on ne peut pas se faire passer pour un autre).
-  async function enregistrerPrenom(prenom) {
-    try { localStorage.setItem('prenom', prenom); } catch {}
-    const r = await Commun.poster('/api/prenom', { prenom });
-    if (r.refuse) $('voile-refuse').classList.add('visible');
-  }
-  $('form-prenom').onsubmit = (ev) => {
-    ev.preventDefault();
-    enregistrerPrenom($('prenom').value.trim());
-    $('voile-prenom').classList.remove('visible');
+  // ---------- Accès : après chaque scan du QR code, prénom + code bénévoles ----------
+  // Rien n'est gardé sur le téléphone ; c'est le serveur qui écrit le prénom dans le journal.
+  $('afficher-benevoles').onclick = () => {
+    const champ = $('code-benevoles');
+    champ.type = champ.type === 'text' ? 'password' : 'text';
+    $('afficher-benevoles').textContent = champ.type === 'text' ? 'Masquer' : 'Afficher';
   };
-  $('changer-prenom').onclick = demanderPrenom;
+  $('form-prenom').onsubmit = async (ev) => {
+    ev.preventDefault();
+    const r = await Commun.poster('/api/benevole/connexion', { prenom: $('prenom').value, code: $('code-benevoles').value });
+    if (r.ok) return location.replace('/telecommande');
+    if (r.refuse) {
+      $('voile-prenom').classList.remove('visible');
+      return $('voile-refuse').classList.add('visible');
+    }
+    $('erreur-prenom').textContent = r.message || 'Connexion impossible.';
+    $('erreur-prenom').hidden = false;
+    $('code-benevoles').select();
+  };
 
   // ---------- Éteindre / redémarrer le player (code administrateur demandé) ----------
   $('eteindre').onclick = () => {
@@ -216,14 +214,14 @@
   };
 
   fetch('/api/moi').then((r) => r.json()).then((m) => {
-    if (!m.autorise) return $('voile-refuse').classList.add('visible');
     // Bouton d'extinction : sur le player uniquement, et pas dans la régie (qui a le sien en haut).
     $('eteindre').hidden = !m.player || document.body.classList.contains('integre');
-    if (m.regie) return $('changer-prenom').remove(); // régie : notée « Régie » dans le journal
-    if (m.prenom) return;
-    // Téléphone qui a rescanné le QR code : on reprend son prénom habituel.
-    if (lirePrenom()) enregistrerPrenom(lirePrenom());
-    else demanderPrenom();
+    if (m.autorise) return;
+    if (m.invitation) {
+      $('voile-prenom').classList.add('visible');
+      return $('prenom').focus();
+    }
+    $('voile-refuse').classList.add('visible');
   });
 
   Commun.connecter(

@@ -104,6 +104,8 @@ input, select {
 .tab-resume span:first-child { color: var(--doux); }
 .tab-resume b { font-family: Bahnschrift, sans-serif; font-size: 26px; text-align: right; }
 .ronds { letter-spacing: 2px; white-space: nowrap; }
+.alerte-texte { color: var(--orange); font-weight: 600; }
+#voile-prenom .champ-code { width: 100%; }
 .titre-corrige { margin: 0; font-size: 15px; color: var(--texte); }
 /* Après des tirs au but, les deux corrections sont séparées par un trait. */
 #corrige-tab:not([hidden]) + #corrige-match { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--bord); }

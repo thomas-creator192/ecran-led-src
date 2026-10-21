@@ -56,7 +56,7 @@ Câble RJ45 du club ──▶ [switch 5 ports] ──▶ Novastar (player de l'�
 
 1. Double-clic sur l'icône **« Écran LED SRC »** : la régie s'ouvre.
 2. **« Lancer la diffusion »** : l'affichage s'ouvre en plein écran sur l'écran LED.
-3. Les bénévoles scannent le **QR code** avec leur téléphone (connecté au Wi-Fi du stade) et tapent leur prénom.
+3. Les bénévoles scannent le **QR code** avec leur téléphone (connecté au Wi-Fi du stade), puis tapent **leur prénom et le code bénévoles** — à chaque scan, rien n'est mémorisé sur le téléphone.
 4. Sur le téléphone : **Coup d'envoi**, **BUT**, **temps additionnel**, **fin de mi-temps**… Le bouton orange **Annuler** rattrape n'importe quelle erreur.
 5. Après le match : **« Quitter l'app »** en haut de la régie.
 
@@ -97,9 +97,10 @@ Les fichiers sont rangés avec les données de l'app et ne sont jamais touchés 
 ## Sécurité
 
 - La **régie** et les **spots** s'ouvrent sur l'ordinateur où tourne l'app, ou depuis le réseau avec le **code administrateur** (stocké chiffré, 20 essais ratés en 10 minutes bloquent l'appareil). Changer le code déconnecte les autres administrateurs.
-- Un téléphone n'a accès à la télécommande **qu'après avoir scanné le QR code**. Chaque téléphone a son propre accès, visible dans la régie (« Téléphones connectés ») et **retirable** d'un clic. Un accès expire tout seul après 24 h sans utilisation.
+- Un téléphone n'a accès à la télécommande **qu'après avoir scanné le QR code puis tapé son prénom et le code bénévoles** (défini dans la régie, différent du code administrateur). Rescanner le QR code ferme l'accès précédent et redemande tout. L'accès se ferme à la fermeture du navigateur, et au plus tard après 12 h. Chaque téléphone est visible dans la régie (« Téléphones connectés ») et **retirable** d'un clic.
+- Changer le **code bénévoles** déconnecte tous les téléphones.
 - **« Nouveau code »** change le QR code et déconnecte tous les téléphones.
-- Le prénom inscrit dans le journal est celui enregistré pour le téléphone : impossible d'agir sous le nom de quelqu'un d'autre.
+- Le prénom inscrit dans le journal est celui tapé à la connexion, enregistré par l'app : impossible d'agir ensuite sous le nom de quelqu'un d'autre.
 - Les spots (envoi, fichiers, diffusion) ne sont gérables que depuis le PC du stade. Chaque fichier envoyé est vérifié (vrai format, 500 Mo maximum).
 - Les autres pages web ouvertes sur le PC ou les téléphones ne peuvent pas piloter l'app. Le pare-feu n'ouvre l'app qu'aux réseaux privés.
 
