@@ -594,7 +594,8 @@ async function router(req, res) {
     if (p === '/api/flux') return flux(req, res);
     if (p === '/api/contact.svg') {
       const svg = await QRCode.toString(CONTACT_VCARD, { type: 'svg', errorCorrectionLevel: 'L', margin: 1 });
-      res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=86400' });
+      // Jamais mis en cache : une fiche contact modifiée s'affiche tout de suite.
+      res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'no-store' });
       return res.end(svg);
     }
     if (p === '/api/moi') {
