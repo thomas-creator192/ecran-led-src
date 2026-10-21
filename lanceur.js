@@ -21,6 +21,38 @@ for (const niveau of ['log', 'error']) {
   };
 }
 
+// Player Raspberry : le démarrage automatique de l'affichage pointe toujours vers le lanceur stable
+// (installateur/demarrage-affichage.sh). L'app le corrige elle-même : rien à faire sur le Raspberry.
+function verifierDemarrageAffichage() {
+  if (process.platform !== 'linux') return;
+  try {
+    const os = require('os');
+    const dossier = path.join(os.homedir(), '.config', 'autostart');
+    const fichier = path.join(dossier, 'ecran-led.desktop');
+    const voulu = [
+      '[Desktop Entry]',
+      'Type=Application',
+      'Name=Écran LED SRC',
+      `Exec=bash ${path.join(__dirname, 'installateur', 'demarrage-affichage.sh')}`,
+      'X-GNOME-Autostart-enabled=true',
+      '',
+    ].join('\n');
+    let actuel = '';
+    try {
+      actuel = fs.readFileSync(fichier, 'utf8');
+    } catch {
+      // pas encore de fichier
+    }
+    if (actuel !== voulu) {
+      fs.mkdirSync(dossier, { recursive: true });
+      fs.writeFileSync(fichier, voulu);
+      console.log('Démarrage automatique de l’affichage mis à jour.');
+    }
+  } catch (err) {
+    console.error('Démarrage automatique de l’affichage non modifié :', err.message);
+  }
+}
+
 async function dejaLance() {
   try {
     await fetch(`http://localhost:${Number(process.env.PORT) || 8080}/api/moi`, { signal: AbortSignal.timeout(800) });
@@ -39,5 +71,6 @@ async function dejaLance() {
       console.error('Mise à jour impossible (on garde la version actuelle) :', err.message || err);
     }
   }
+  verifierDemarrageAffichage();
   require('./server.js');
 })();

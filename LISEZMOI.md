@@ -133,7 +133,7 @@ La personne qui contrôle ce compte GitHub contrôle ce qui s'installe sur le PC
 - `lanceur.js` : point d'entrée de l'app installée (mise à jour, puis serveur).
 - `server.js` : le serveur (état du match, accès, diffusion en direct). `systeme.js` : écrans, navigateur, pare-feu.
 - `admin.js` : code et sessions administrateur. `maj.js` : mises à jour depuis GitHub. `spots.js` : spots annonceurs.
-- `installateur/installer-raspberry.sh` et `kiosque.sh` : installation et affichage plein écran du player Raspberry.
+- `installateur/installer-raspberry.sh` : installation du player Raspberry. `demarrage-affichage.sh` (lanceur stable, attend que l'app soit prête et à jour) puis `affichage.sh` (plein écran HDMI).
 - `public/ecran.html` : l'affichage de l'écran LED (dessiné en 1200 × 400, format 3:1, mis à l'échelle automatiquement).
 - `public/telecommande.html` : la télécommande des téléphones. `public/regie.html` : la régie.
 - `installateur/` : installation sur un PC. `outils/construire.ps1` : fabrique le fichier d'installation.

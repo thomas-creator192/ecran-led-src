@@ -82,7 +82,7 @@ cat > "$HOME/.config/autostart/ecran-led.desktop" <<EOF
 [Desktop Entry]
 Type=Application
 Name=Écran LED SRC
-Exec=bash $DOSSIER/app/installateur/kiosque.sh
+Exec=bash $DOSSIER/app/installateur/demarrage-affichage.sh
 X-GNOME-Autostart-enabled=true
 EOF
 
