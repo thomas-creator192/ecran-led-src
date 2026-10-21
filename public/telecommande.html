@@ -60,11 +60,13 @@
   <details class="bloc">
     <summary>Corriger le score</summary>
     <div class="pile" id="corrige-tab" hidden>
-      <p class="aide">Tirs au but : corrige le dernier tir de chaque équipe.</p>
+      <h3 class="titre-corrige">Tirs au but</h3>
+      <p class="aide">Corrige le dernier tir de chaque équipe.</p>
       <div class="corrige-tir"><span class="n-dom">SRC</span><button data-tab-retirer="dom">Retirer</button><button data-tab-inverser="dom">But ↔ Manqué</button></div>
       <div class="corrige-tir"><span class="n-ext">VISITEUR</span><button data-tab-retirer="ext">Retirer</button><button data-tab-inverser="ext">But ↔ Manqué</button></div>
     </div>
     <div class="pile" id="corrige-match">
+      <h3 class="titre-corrige" id="titre-score-match" hidden>Score du match</h3>
       <div class="corrige"><span class="n-dom">SRC</span><button data-score="dom" data-delta="-1">−1</button><button data-score="dom" data-delta="1">+1</button></div>
       <div class="corrige"><span class="n-ext">VISITEUR</span><button data-score="ext" data-delta="-1">−1</button><button data-score="ext" data-delta="1">+1</button></div>
       <p class="aide">Sans animation. Pour une erreur de but, le bouton « Annuler » en bas suffit.</p>

@@ -138,6 +138,7 @@
       : 'Le bouton BUT ajoute le point et lance l’animation sur l’écran.';
     $('corrige-tab').hidden = !etat.tab;
     $('corrige-match').hidden = tab;
+    $('titre-score-match').hidden = !etat.tab;
     if (!etat.tab) return;
     const st = Commun.scoreTab(etat);
     for (const eq of ['dom', 'ext']) {
