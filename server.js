@@ -496,6 +496,7 @@ const TYPES = {
   '.jpg': 'image/jpeg',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.mp4': 'video/mp4',
   '.webm': 'video/webm',
 };
