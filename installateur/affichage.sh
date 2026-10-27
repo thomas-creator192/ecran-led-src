@@ -18,6 +18,7 @@ principal() {
     fi
     "$chromium" \
       --kiosk \
+      --force-device-scale-factor=1 \
       --noerrdialogs \
       --disable-infobars \
       --no-first-run \

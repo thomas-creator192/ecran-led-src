@@ -15,12 +15,15 @@
   let pulsesEnAttente = [];
 
   function placer() {
+    // La zone est réglée en vrais pixels de la sortie vidéo (= pixels LED en point à point).
+    // Si le navigateur affiche avec un zoom (devicePixelRatio ≠ 1), on convertit.
     const z = etat && !apercu && etat.reglages.zone.mode === 'zone' ? etat.reglages.zone : null;
+    const r = devicePixelRatio || 1;
     Object.assign(zone.style, z
-      ? { left: z.x + 'px', top: z.y + 'px', width: z.l + 'px', height: z.h + 'px' }
+      ? { left: z.x / r + 'px', top: z.y / r + 'px', width: z.l / r + 'px', height: z.h / r + 'px' }
       : { left: '0', top: '0', width: innerWidth + 'px', height: innerHeight + 'px' });
-    const l = z ? z.l : innerWidth;
-    const h = z ? z.h : innerHeight;
+    const l = z ? z.l / r : innerWidth;
+    const h = z ? z.h / r : innerHeight;
     const k = Math.min(l / 1200, h / 400);
     const transform = `translate(${(l - 1200 * k) / 2}px, ${(h - 400 * k) / 2}px) scale(${k})`;
     if (scene.style.transform !== transform) scene.style.transform = transform;
