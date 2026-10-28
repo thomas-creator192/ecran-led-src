@@ -213,6 +213,13 @@
       const largeur = t.scrollWidth;
       if (largeur > dispo) t.style.fontSize = `${parseFloat(getComputedStyle(t).fontSize) * dispo / largeur}px`;
     }
+    // Un métier sur deux lignes : les deux lignes à la même taille (celle de la plus longue).
+    for (const bloc of document.querySelectorAll('#intro .intro-service')) {
+      const lignes = [...bloc.querySelectorAll('.ajuster')];
+      if (lignes.length < 2) continue;
+      const taille = Math.min(...lignes.map((l) => parseFloat(getComputedStyle(l).fontSize)));
+      for (const l of lignes) l.style.fontSize = `${taille}px`;
+    }
   }
   function jouerIntro(sortie) {
     const el = $('intro');
