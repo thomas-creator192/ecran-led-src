@@ -30,11 +30,11 @@ function plusRecente(a, b) {
 }
 
 // Renvoie le numéro de la version disponible sur GitHub si elle est plus récente, sinon null.
-async function nouvelleVersion() {
+async function nouvelleVersion(delai = 15000) {
   const conf = config();
   if (!conf.depot) return null;
   const r = await fetch(`https://raw.githubusercontent.com/${conf.depot}/${conf.branche || 'main'}/package.json`, {
-    signal: AbortSignal.timeout(4000),
+    signal: AbortSignal.timeout(delai),
   });
   if (!r.ok) return null;
   const distante = (await r.json()).version;
@@ -51,9 +51,23 @@ function extraire(zip, destination) {
   }
 }
 
+// Comme nouvelleVersion, mais réessaie toutes les 5 s pendant « patience » ms si le réseau
+// ne répond pas encore (player qui démarre en même temps que la box, connexion lente…).
+async function nouvelleVersionPatiente(delai, patience) {
+  const fin = Date.now() + patience;
+  for (;;) {
+    try {
+      return await nouvelleVersion(delai);
+    } catch (err) {
+      if (Date.now() + 5000 > fin) throw err;
+      await new Promise((ok) => setTimeout(ok, 5000));
+    }
+  }
+}
+
 // Télécharge et installe la nouvelle version. Renvoie son numéro, ou null s'il n'y en a pas.
-async function installer() {
-  const version = await nouvelleVersion();
+async function installer({ delai = 15000, patience = 0 } = {}) {
+  const version = await nouvelleVersionPatiente(delai, patience);
   if (!version) return null;
   const conf = config();
   console.log(`Mise à jour ${versionLocale()} → ${version}…`);

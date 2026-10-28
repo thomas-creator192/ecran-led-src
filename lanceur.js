@@ -66,7 +66,11 @@ async function dejaLance() {
   // Si l'app tourne déjà, on ne met rien à jour en plein match : le serveur rouvrira juste la régie.
   if (!(await dejaLance())) {
     try {
-      await require('./maj').installer();
+      // Player Raspberry : jusqu'à 90 s pour joindre GitHub (l'affichage, lui, attend jusqu'à 3 min).
+      // PC Windows : un seul essai court, pour ne pas retarder l'ouverture de la régie.
+      await require('./maj').installer(process.platform === 'linux'
+        ? { delai: 15000, patience: 90000 }
+        : { delai: 4000 });
     } catch (err) {
       console.error('Mise à jour impossible (on garde la version actuelle) :', err.message || err);
     }
