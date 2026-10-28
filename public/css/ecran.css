@@ -73,11 +73,11 @@ body.apercu { cursor: default; }
 .score {
   display: flex;
   align-items: center;
-  gap: 14px;
-  font-size: 110px;
+  gap: 18px;
+  font-size: 150px;
   line-height: 1;
 }
-.tiret { color: var(--bleu-clair); font-size: 70px; }
+.tiret { color: var(--bleu-clair); font-size: 90px; }
 .chiffre { display: inline-block; }
 .chiffre.pulse { animation: pulse 1.2s ease-out; }
 @keyframes pulse {
